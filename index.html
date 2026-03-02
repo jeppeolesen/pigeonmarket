@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pigeonmarket — Predict. Trade. Coo.</title>
+  <meta name="description" content="The world's leading pigeon prediction market. Bet on outcomes that matter — to pigeons." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐦</text></svg>" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            pigeon: {
+              50: '#fafafa',
+              100: '#f4f4f5',
+              200: '#e4e4e7',
+              300: '#d4d4d8',
+              400: '#a1a1aa',
+              500: '#71717a',
+              600: '#52525b',
+              700: '#3f3f46',
+              800: '#27272a',
+              900: '#18181b',
+              950: '#09090b',
+            },
+            coo: {
+              green: '#22c55e',
+              red: '#ef4444',
+              blue: '#3b82f6',
+              purple: '#a855f7',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .market-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+    .market-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+    .prob-bar { transition: width 0.6s ease; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+    .live-bet-enter { animation: slideIn 0.35s ease-out; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .pulse-dot { animation: pulse-dot 1.5s ease-in-out infinite; }
+    .chart-line { filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.4)); }
+  </style>
+</head>
+
+<body class="bg-pigeon-950 text-zinc-100 min-h-screen">
+
+  <!-- ========== NAV ========== -->
+  <nav class="sticky top-0 z-50 bg-pigeon-950/90 backdrop-blur-md border-b border-pigeon-800/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <!-- Top row -->
+      <div class="flex items-center justify-between h-14">
+        <!-- Logo -->
+        <a href="#" class="flex items-center gap-2 shrink-0">
+          <span class="text-2xl">🐦</span>
+          <span class="text-lg font-bold tracking-tight text-white">Pigeonmarket</span>
+        </a>
+
+        <!-- Search -->
+        <div class="hidden md:flex flex-1 max-w-md mx-6">
+          <div class="relative w-full">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-pigeon-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" placeholder="Search markets…" class="w-full bg-pigeon-900 border border-pigeon-700/50 rounded-lg pl-10 pr-4 py-2 text-sm text-zinc-200 placeholder-pigeon-500 focus:outline-none focus:ring-2 focus:ring-coo-blue/50 focus:border-coo-blue/50" />
+          </div>
+        </div>
+
+        <!-- Right side -->
+        <div class="flex items-center gap-3">
+          <button class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-pigeon-300 hover:text-white transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            Rankings
+          </button>
+          <button class="px-4 py-2 bg-coo-blue hover:bg-blue-600 text-white text-sm font-semibold rounded-lg transition-colors">
+            Log In
+          </button>
+          <button class="px-4 py-2 bg-pigeon-800 hover:bg-pigeon-700 text-white text-sm font-semibold rounded-lg border border-pigeon-700/50 transition-colors">
+            Sign Up
+          </button>
+        </div>
+      </div>
+
+      <!-- Category tabs -->
+      <div class="flex items-center gap-1 py-2 overflow-x-auto hide-scrollbar -mx-4 px-4">
+        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full bg-coo-blue/15 text-coo-blue border border-coo-blue/30">Trending</a>
+        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">New</a>
+        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">Popular</a>
+        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">Ending Soon</a>
+        <span class="w-px h-5 bg-pigeon-700/50 mx-1 shrink-0"></span>
+        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🌆 Urban</a>
+        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🏆 Racing</a>
+        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🌦️ Migration</a>
+        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🍞 Food</a>
+        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🧬 Science</a>
+        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🐣 Breeding</a>
+        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🗳️ Politics</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== MAIN ========== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+
+    <!-- Breaking ticker -->
+    <div class="flex items-center gap-3 mb-6 px-4 py-2.5 bg-pigeon-900/60 rounded-xl border border-pigeon-800/40">
+      <span class="shrink-0 px-2 py-0.5 text-xs font-bold uppercase tracking-wider bg-coo-red/20 text-coo-red rounded">Breaking</span>
+      <p class="text-sm text-pigeon-300 truncate">Central Park pigeon "Big Tony" spotted with entire bagel — market surges 340%</p>
+    </div>
+
+    <!-- ========== FEATURED MARKETS ========== -->
+    <section class="mb-10">
+      <h2 class="text-lg font-bold text-white mb-4">Featured Markets</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+        <!-- Featured Card 1 -->
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-2xl p-5 cursor-pointer">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <span class="text-2xl">🏆</span>
+              <div>
+                <span class="text-xs font-medium text-coo-purple bg-coo-purple/15 px-2 py-0.5 rounded-full">Racing</span>
+                <span class="text-xs text-pigeon-500 ml-2">$1.2M Vol</span>
+              </div>
+            </div>
+            <span class="text-xs text-pigeon-500">Ends Mar 15</span>
+          </div>
+          <h3 class="text-white font-semibold text-base mb-3">Which pigeon wins the 2026 Copenhagen Grand Prix?</h3>
+
+          <!-- Price chart -->
+          <div class="mb-4 bg-pigeon-800/40 rounded-xl p-3">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs text-pigeon-400">Price History (7d)</span>
+              <div class="flex gap-2 text-xs">
+                <button class="text-pigeon-500 hover:text-pigeon-300">24h</button>
+                <button class="text-coo-blue font-medium">7d</button>
+                <button class="text-pigeon-500 hover:text-pigeon-300">30d</button>
+              </div>
+            </div>
+            <svg viewBox="0 0 400 100" class="w-full h-20" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="chartGrad1" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#22c55e" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
+                </linearGradient>
+                <linearGradient id="chartGrad2" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.2"/>
+                  <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- Sir Coos-a-Lot (green) -->
+              <path d="M0,65 C20,62 40,58 80,55 C120,52 140,48 180,42 C220,36 260,40 300,35 C340,30 370,28 400,25" fill="none" stroke="#22c55e" stroke-width="2" class="chart-line"/>
+              <path d="M0,65 C20,62 40,58 80,55 C120,52 140,48 180,42 C220,36 260,40 300,35 C340,30 370,28 400,25 L400,100 L0,100 Z" fill="url(#chartGrad1)"/>
+              <!-- Feather McGraw (blue) -->
+              <path d="M0,55 C20,58 40,60 80,62 C120,58 140,55 180,52 C220,55 260,50 300,48 C340,50 370,47 400,45" fill="none" stroke="#3b82f6" stroke-width="2" class="chart-line"/>
+              <path d="M0,55 C20,58 40,60 80,62 C120,58 140,55 180,52 C220,55 260,50 300,48 C340,50 370,47 400,45 L400,100 L0,100 Z" fill="url(#chartGrad2)"/>
+              <!-- Coopinator (purple) -->
+              <path d="M0,78 C20,76 40,80 80,82 C120,80 140,78 180,76 C220,78 260,75 300,72 C340,74 370,73 400,70" fill="none" stroke="#a855f7" stroke-width="1.5" stroke-opacity="0.7"/>
+              <!-- Grid lines -->
+              <line x1="0" y1="25" x2="400" y2="25" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+              <line x1="0" y1="50" x2="400" y2="50" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+              <line x1="0" y1="75" x2="400" y2="75" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+            </svg>
+            <div class="flex items-center gap-4 mt-2">
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-0.5 bg-coo-green rounded-full"></span><span class="text-[10px] text-pigeon-400">Sir Coos-a-Lot</span></div>
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-0.5 bg-coo-blue rounded-full"></span><span class="text-[10px] text-pigeon-400">Feather McGraw</span></div>
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-0.5 bg-coo-purple rounded-full"></span><span class="text-[10px] text-pigeon-400">The Coopinator</span></div>
+            </div>
+          </div>
+
+          <div class="space-y-2.5">
+            <div class="flex items-center gap-3">
+              <span class="text-sm text-pigeon-300 w-28 truncate">Sir Coos-a-Lot</span>
+              <div class="flex-1 h-7 bg-pigeon-800 rounded-full overflow-hidden">
+                <div class="prob-bar h-full bg-coo-green/25 rounded-full flex items-center pl-3" style="width:42%">
+                  <span class="text-xs font-bold text-coo-green">42%</span>
+                </div>
+              </div>
+              <div class="flex gap-1.5 shrink-0">
+                <button class="px-2.5 py-1 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-md hover:bg-coo-green/25 transition-colors">Yes</button>
+                <button class="px-2.5 py-1 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-md hover:bg-coo-red/25 transition-colors">No</button>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-sm text-pigeon-300 w-28 truncate">Feather McGraw</span>
+              <div class="flex-1 h-7 bg-pigeon-800 rounded-full overflow-hidden">
+                <div class="prob-bar h-full bg-coo-blue/25 rounded-full flex items-center pl-3" style="width:31%">
+                  <span class="text-xs font-bold text-coo-blue">31%</span>
+                </div>
+              </div>
+              <div class="flex gap-1.5 shrink-0">
+                <button class="px-2.5 py-1 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-md hover:bg-coo-green/25 transition-colors">Yes</button>
+                <button class="px-2.5 py-1 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-md hover:bg-coo-red/25 transition-colors">No</button>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-sm text-pigeon-300 w-28 truncate">The Coopinator</span>
+              <div class="flex-1 h-7 bg-pigeon-800 rounded-full overflow-hidden">
+                <div class="prob-bar h-full bg-coo-purple/25 rounded-full flex items-center pl-3" style="width:18%">
+                  <span class="text-xs font-bold text-coo-purple">18%</span>
+                </div>
+              </div>
+              <div class="flex gap-1.5 shrink-0">
+                <button class="px-2.5 py-1 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-md hover:bg-coo-green/25 transition-colors">Yes</button>
+                <button class="px-2.5 py-1 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-md hover:bg-coo-red/25 transition-colors">No</button>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-sm text-pigeon-300 w-28 truncate">Wing Commander</span>
+              <div class="flex-1 h-7 bg-pigeon-800 rounded-full overflow-hidden">
+                <div class="prob-bar h-full bg-yellow-500/25 rounded-full flex items-center pl-3" style="width:9%">
+                  <span class="text-xs font-bold text-yellow-400">9%</span>
+                </div>
+              </div>
+              <div class="flex gap-1.5 shrink-0">
+                <button class="px-2.5 py-1 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-md hover:bg-coo-green/25 transition-colors">Yes</button>
+                <button class="px-2.5 py-1 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-md hover:bg-coo-red/25 transition-colors">No</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Featured Card 2 -->
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-2xl p-5 cursor-pointer">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <span class="text-2xl">🍟</span>
+              <div>
+                <span class="text-xs font-medium text-coo-green bg-coo-green/15 px-2 py-0.5 rounded-full">Food</span>
+                <span class="text-xs text-pigeon-500 ml-2">$890K Vol</span>
+              </div>
+            </div>
+            <span class="text-xs text-pigeon-500">Ends Today</span>
+          </div>
+          <h3 class="text-white font-semibold text-base mb-3">Will Big Tony steal another bagel before noon?</h3>
+
+          <!-- Price chart -->
+          <div class="mb-4 bg-pigeon-800/40 rounded-xl p-3">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs text-pigeon-400">Yes Price (24h)</span>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-semibold text-coo-green">87&cent;</span>
+                <span class="text-[10px] text-coo-green">+12&cent;</span>
+              </div>
+            </div>
+            <svg viewBox="0 0 400 80" class="w-full h-16" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="chartGrad3" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#22c55e" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <line x1="0" y1="20" x2="400" y2="20" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+              <line x1="0" y1="40" x2="400" y2="40" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+              <line x1="0" y1="60" x2="400" y2="60" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+              <path d="M0,55 C15,54 25,50 40,52 C55,54 70,48 90,45 C110,42 130,44 150,40 C170,36 190,38 210,35 C230,32 245,28 260,30 C275,32 290,25 310,22 C330,19 350,20 370,15 C385,12 395,10 400,8" fill="none" stroke="#22c55e" stroke-width="2.5" class="chart-line"/>
+              <path d="M0,55 C15,54 25,50 40,52 C55,54 70,48 90,45 C110,42 130,44 150,40 C170,36 190,38 210,35 C230,32 245,28 260,30 C275,32 290,25 310,22 C330,19 350,20 370,15 C385,12 395,10 400,8 L400,80 L0,80 Z" fill="url(#chartGrad3)"/>
+              <!-- Volume bars at bottom -->
+              <rect x="5" y="68" width="12" height="12" rx="1" fill="#22c55e" opacity="0.15"/>
+              <rect x="22" y="72" width="12" height="8" rx="1" fill="#22c55e" opacity="0.15"/>
+              <rect x="39" y="65" width="12" height="15" rx="1" fill="#22c55e" opacity="0.15"/>
+              <rect x="56" y="70" width="12" height="10" rx="1" fill="#22c55e" opacity="0.15"/>
+              <rect x="73" y="60" width="12" height="20" rx="1" fill="#22c55e" opacity="0.2"/>
+              <rect x="90" y="63" width="12" height="17" rx="1" fill="#22c55e" opacity="0.15"/>
+              <rect x="107" y="66" width="12" height="14" rx="1" fill="#22c55e" opacity="0.15"/>
+              <rect x="124" y="58" width="12" height="22" rx="1" fill="#22c55e" opacity="0.2"/>
+              <rect x="141" y="62" width="12" height="18" rx="1" fill="#22c55e" opacity="0.15"/>
+              <rect x="158" y="55" width="12" height="25" rx="1" fill="#22c55e" opacity="0.25"/>
+              <rect x="175" y="60" width="12" height="20" rx="1" fill="#22c55e" opacity="0.2"/>
+              <rect x="192" y="64" width="12" height="16" rx="1" fill="#22c55e" opacity="0.15"/>
+              <rect x="209" y="56" width="12" height="24" rx="1" fill="#22c55e" opacity="0.2"/>
+              <rect x="226" y="52" width="12" height="28" rx="1" fill="#22c55e" opacity="0.25"/>
+              <rect x="243" y="58" width="12" height="22" rx="1" fill="#22c55e" opacity="0.2"/>
+              <rect x="260" y="50" width="12" height="30" rx="1" fill="#22c55e" opacity="0.3"/>
+              <rect x="277" y="54" width="12" height="26" rx="1" fill="#22c55e" opacity="0.25"/>
+              <rect x="294" y="48" width="12" height="32" rx="1" fill="#22c55e" opacity="0.3"/>
+              <rect x="311" y="52" width="12" height="28" rx="1" fill="#22c55e" opacity="0.25"/>
+              <rect x="328" y="45" width="12" height="35" rx="1" fill="#22c55e" opacity="0.3"/>
+              <rect x="345" y="50" width="12" height="30" rx="1" fill="#22c55e" opacity="0.25"/>
+              <rect x="362" y="42" width="12" height="38" rx="1" fill="#22c55e" opacity="0.35"/>
+              <rect x="379" y="38" width="12" height="42" rx="1" fill="#22c55e" opacity="0.4"/>
+            </svg>
+          </div>
+
+          <div class="flex items-center gap-4 mb-4">
+            <div class="flex-1 text-center p-3 rounded-xl bg-coo-green/10 border border-coo-green/20">
+              <div class="text-2xl font-bold text-coo-green">87%</div>
+              <div class="text-xs text-pigeon-400 mt-0.5">Yes</div>
+            </div>
+            <div class="flex-1 text-center p-3 rounded-xl bg-coo-red/10 border border-coo-red/20">
+              <div class="text-2xl font-bold text-coo-red">13%</div>
+              <div class="text-xs text-pigeon-400 mt-0.5">No</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 text-xs text-pigeon-500">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            <span>+12% in last hour</span>
+            <span class="mx-1">·</span>
+            <span>4,329 traders</span>
+          </div>
+          <div class="mt-3 p-2.5 bg-pigeon-800/50 rounded-lg">
+            <p class="text-xs text-pigeon-400"><span class="text-pigeon-300 font-medium">PigeonWire:</span> Big Tony was spotted circling the bagel cart on 5th Ave at 8:42 AM. Experts say "he looks hungry."</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MARKET GRID ========== -->
+    <section class="mb-10">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-white">All Markets</h2>
+        <div class="flex items-center gap-2 text-xs">
+          <button class="px-2.5 py-1 rounded-md bg-pigeon-800 text-pigeon-300 font-medium">All</button>
+          <button class="px-2.5 py-1 rounded-md text-pigeon-500 hover:text-pigeon-300 transition-colors">Yes/No</button>
+          <button class="px-2.5 py-1 rounded-md text-pigeon-500 hover:text-pigeon-300 transition-colors">Multi</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <!-- Market Card -->
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-medium text-coo-blue bg-coo-blue/15 px-2 py-0.5 rounded-full">Urban</span>
+            <span class="text-xs text-pigeon-500">$234K Vol</span>
+          </div>
+          <h3 class="text-sm font-semibold text-white mb-3">Pigeons outnumber tourists at Times Square today?</h3>
+          <div class="flex items-center gap-2 mb-2">
+            <div class="flex-1 h-8 bg-pigeon-800 rounded-lg overflow-hidden relative">
+              <div class="prob-bar h-full bg-coo-green/20 rounded-lg" style="width:64%"></div>
+              <div class="absolute inset-0 flex items-center justify-between px-3">
+                <span class="text-xs font-semibold text-coo-green">Yes 64%</span>
+                <span class="text-xs font-semibold text-coo-red">No 36%</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-lg hover:bg-coo-green/25 transition-colors">Buy Yes</button>
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-lg hover:bg-coo-red/25 transition-colors">Buy No</button>
+          </div>
+        </div>
+
+        <!-- Market Card -->
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-medium text-coo-purple bg-coo-purple/15 px-2 py-0.5 rounded-full">Science</span>
+            <span class="text-xs text-pigeon-500">$567K Vol</span>
+          </div>
+          <h3 class="text-sm font-semibold text-white mb-3">Will pigeons pass the mirror self-recognition test this year?</h3>
+          <div class="flex items-center gap-2 mb-2">
+            <div class="flex-1 h-8 bg-pigeon-800 rounded-lg overflow-hidden relative">
+              <div class="prob-bar h-full bg-coo-green/20 rounded-lg" style="width:23%"></div>
+              <div class="absolute inset-0 flex items-center justify-between px-3">
+                <span class="text-xs font-semibold text-coo-green">Yes 23%</span>
+                <span class="text-xs font-semibold text-coo-red">No 77%</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-lg hover:bg-coo-green/25 transition-colors">Buy Yes</button>
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-lg hover:bg-coo-red/25 transition-colors">Buy No</button>
+          </div>
+        </div>
+
+        <!-- Market Card -->
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-medium text-yellow-400 bg-yellow-400/15 px-2 py-0.5 rounded-full">Migration</span>
+            <span class="text-xs text-pigeon-500">$412K Vol</span>
+          </div>
+          <h3 class="text-sm font-semibold text-white mb-3">Spring migration from Barcelona arrives before March 20?</h3>
+          <div class="flex items-center gap-2 mb-2">
+            <div class="flex-1 h-8 bg-pigeon-800 rounded-lg overflow-hidden relative">
+              <div class="prob-bar h-full bg-coo-green/20 rounded-lg" style="width:71%"></div>
+              <div class="absolute inset-0 flex items-center justify-between px-3">
+                <span class="text-xs font-semibold text-coo-green">Yes 71%</span>
+                <span class="text-xs font-semibold text-coo-red">No 29%</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-lg hover:bg-coo-green/25 transition-colors">Buy Yes</button>
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-lg hover:bg-coo-red/25 transition-colors">Buy No</button>
+          </div>
+        </div>
+
+        <!-- Market Card -->
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-medium text-coo-green bg-coo-green/15 px-2 py-0.5 rounded-full">Food</span>
+            <span class="text-xs text-pigeon-500">$98K Vol</span>
+          </div>
+          <h3 class="text-sm font-semibold text-white mb-3">Will the flock at Nyhavn choose bread over rice today?</h3>
+          <div class="flex items-center gap-2 mb-2">
+            <div class="flex-1 h-8 bg-pigeon-800 rounded-lg overflow-hidden relative">
+              <div class="prob-bar h-full bg-coo-green/20 rounded-lg" style="width:55%"></div>
+              <div class="absolute inset-0 flex items-center justify-between px-3">
+                <span class="text-xs font-semibold text-coo-green">Bread 55%</span>
+                <span class="text-xs font-semibold text-coo-red">Rice 45%</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-lg hover:bg-coo-green/25 transition-colors">Buy Bread</button>
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-lg hover:bg-coo-red/25 transition-colors">Buy Rice</button>
+          </div>
+        </div>
+
+        <!-- Market Card -->
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-medium text-pink-400 bg-pink-400/15 px-2 py-0.5 rounded-full">Politics</span>
+            <span class="text-xs text-pigeon-500">$1.8M Vol</span>
+          </div>
+          <h3 class="text-sm font-semibold text-white mb-3">Copenhagen to officially designate pigeons as city ambassadors?</h3>
+          <div class="flex items-center gap-2 mb-2">
+            <div class="flex-1 h-8 bg-pigeon-800 rounded-lg overflow-hidden relative">
+              <div class="prob-bar h-full bg-coo-green/20 rounded-lg" style="width:8%"></div>
+              <div class="absolute inset-0 flex items-center justify-between px-3">
+                <span class="text-xs font-semibold text-coo-green">Yes 8%</span>
+                <span class="text-xs font-semibold text-coo-red">No 92%</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-lg hover:bg-coo-green/25 transition-colors">Buy Yes</button>
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-lg hover:bg-coo-red/25 transition-colors">Buy No</button>
+          </div>
+        </div>
+
+        <!-- Market Card: Baguette abduction -->
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-medium text-red-400 bg-red-400/15 px-2 py-0.5 rounded-full">Breaking</span>
+            <span class="text-xs text-pigeon-500">$4.7M Vol</span>
+          </div>
+          <h3 class="text-sm font-semibold text-white mb-3">Will "Baguette" the French kid be fully abducted by pigeons before summer?</h3>
+          <div class="flex items-center gap-2 mb-2">
+            <div class="flex-1 h-8 bg-pigeon-800 rounded-lg overflow-hidden relative">
+              <div class="prob-bar h-full bg-coo-green/20 rounded-lg" style="width:73%"></div>
+              <div class="absolute inset-0 flex items-center justify-between px-3">
+                <span class="text-xs font-semibold text-coo-green">Yes 73%</span>
+                <span class="text-xs font-semibold text-coo-red">No 27%</span>
+              </div>
+            </div>
+          </div>
+          <p class="text-[10px] text-pigeon-500 mb-2">Parisian boy "Baguette" (age 7) has been progressively carried higher each day by local flock. Currently at 2nd floor altitude.</p>
+          <div class="flex gap-2">
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-lg hover:bg-coo-green/25 transition-colors">Buy Yes</button>
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-lg hover:bg-coo-red/25 transition-colors">Buy No</button>
+          </div>
+        </div>
+
+        <!-- Market Card: Ghostie & MV wedding -->
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-medium text-pink-400 bg-pink-400/15 px-2 py-0.5 rounded-full">Romance</span>
+            <span class="text-xs text-pigeon-500">$3.2M Vol</span>
+          </div>
+          <h3 class="text-sm font-semibold text-white mb-3">Ghostie and MV actually get married in 2026?</h3>
+          <div class="flex items-center gap-2 mb-2">
+            <div class="flex-1 h-8 bg-pigeon-800 rounded-lg overflow-hidden relative">
+              <div class="prob-bar h-full bg-coo-green/20 rounded-lg" style="width:62%"></div>
+              <div class="absolute inset-0 flex items-center justify-between px-3">
+                <span class="text-xs font-semibold text-coo-green">Yes 62%</span>
+                <span class="text-xs font-semibold text-coo-red">No 38%</span>
+              </div>
+            </div>
+          </div>
+          <p class="text-[10px] text-pigeon-500 mb-2">Fan-favorite pigeon couple spotted nest-shopping near the cathedral. Ghostie was seen carrying a tiny ring. MV played it cool.</p>
+          <div class="flex gap-2">
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-lg hover:bg-coo-green/25 transition-colors">Buy Yes</button>
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-lg hover:bg-coo-red/25 transition-colors">Buy No</button>
+          </div>
+        </div>
+
+        <!-- Market Card -->
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-medium text-coo-blue bg-coo-blue/15 px-2 py-0.5 rounded-full">Racing</span>
+            <span class="text-xs text-pigeon-500">$345K Vol</span>
+          </div>
+          <h3 class="text-sm font-semibold text-white mb-3">Feather McGraw breaks the London–Paris speed record?</h3>
+          <div class="flex items-center gap-2 mb-2">
+            <div class="flex-1 h-8 bg-pigeon-800 rounded-lg overflow-hidden relative">
+              <div class="prob-bar h-full bg-coo-green/20 rounded-lg" style="width:34%"></div>
+              <div class="absolute inset-0 flex items-center justify-between px-3">
+                <span class="text-xs font-semibold text-coo-green">Yes 34%</span>
+                <span class="text-xs font-semibold text-coo-red">No 66%</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-lg hover:bg-coo-green/25 transition-colors">Buy Yes</button>
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-lg hover:bg-coo-red/25 transition-colors">Buy No</button>
+          </div>
+        </div>
+
+        <!-- Market Card -->
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-medium text-orange-400 bg-orange-400/15 px-2 py-0.5 rounded-full">Breeding</span>
+            <span class="text-xs text-pigeon-500">$156K Vol</span>
+          </div>
+          <h3 class="text-sm font-semibold text-white mb-3">First hatching of the season before Valentine's Day?</h3>
+          <div class="flex items-center gap-2 mb-2">
+            <div class="flex-1 h-8 bg-pigeon-800 rounded-lg overflow-hidden relative">
+              <div class="prob-bar h-full bg-coo-green/20 rounded-lg" style="width:89%"></div>
+              <div class="absolute inset-0 flex items-center justify-between px-3">
+                <span class="text-xs font-semibold text-coo-green">Yes 89%</span>
+                <span class="text-xs font-semibold text-coo-red">No 11%</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-lg hover:bg-coo-green/25 transition-colors">Buy Yes</button>
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-lg hover:bg-coo-red/25 transition-colors">Buy No</button>
+          </div>
+        </div>
+
+        <!-- Market Card -->
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-medium text-cyan-400 bg-cyan-400/15 px-2 py-0.5 rounded-full">Urban</span>
+            <span class="text-xs text-pigeon-500">$678K Vol</span>
+          </div>
+          <h3 class="text-sm font-semibold text-white mb-3">Pigeons successfully delay a train at London Bridge this week?</h3>
+          <div class="flex items-center gap-2 mb-2">
+            <div class="flex-1 h-8 bg-pigeon-800 rounded-lg overflow-hidden relative">
+              <div class="prob-bar h-full bg-coo-green/20 rounded-lg" style="width:96%"></div>
+              <div class="absolute inset-0 flex items-center justify-between px-3">
+                <span class="text-xs font-semibold text-coo-green">Yes 96%</span>
+                <span class="text-xs font-semibold text-coo-red">No 4%</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-lg hover:bg-coo-green/25 transition-colors">Buy Yes</button>
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-lg hover:bg-coo-red/25 transition-colors">Buy No</button>
+          </div>
+        </div>
+
+        <!-- Market Card -->
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-medium text-emerald-400 bg-emerald-400/15 px-2 py-0.5 rounded-full">Science</span>
+            <span class="text-xs text-pigeon-500">$2.1M Vol</span>
+          </div>
+          <h3 class="text-sm font-semibold text-white mb-3">Research confirms pigeons can distinguish Picasso from Monet?</h3>
+          <div class="flex items-center gap-2 mb-2">
+            <div class="flex-1 h-8 bg-pigeon-800 rounded-lg overflow-hidden relative">
+              <div class="prob-bar h-full bg-coo-green/20 rounded-lg" style="width:76%"></div>
+              <div class="absolute inset-0 flex items-center justify-between px-3">
+                <span class="text-xs font-semibold text-coo-green">Yes 76%</span>
+                <span class="text-xs font-semibold text-coo-red">No 24%</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-lg hover:bg-coo-green/25 transition-colors">Buy Yes</button>
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-lg hover:bg-coo-red/25 transition-colors">Buy No</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Load more -->
+      <div class="mt-6 text-center">
+        <button class="px-6 py-2.5 text-sm font-medium text-pigeon-300 bg-pigeon-900 border border-pigeon-700/50 rounded-xl hover:bg-pigeon-800 hover:text-white transition-colors">
+          Load more markets
+        </button>
+      </div>
+    </section>
+
+    <!-- ========== STATS BAR ========== -->
+    <section class="mb-10 grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-pigeon-900/50 border border-pigeon-800/40 rounded-xl p-4 text-center">
+        <div class="text-2xl font-bold text-white">$47.2M</div>
+        <div class="text-xs text-pigeon-400 mt-1">Total Volume</div>
+      </div>
+      <div class="bg-pigeon-900/50 border border-pigeon-800/40 rounded-xl p-4 text-center">
+        <div class="text-2xl font-bold text-white">12,847</div>
+        <div class="text-xs text-pigeon-400 mt-1">Active Traders</div>
+      </div>
+      <div class="bg-pigeon-900/50 border border-pigeon-800/40 rounded-xl p-4 text-center">
+        <div class="text-2xl font-bold text-white">1,203</div>
+        <div class="text-xs text-pigeon-400 mt-1">Open Markets</div>
+      </div>
+      <div class="bg-pigeon-900/50 border border-pigeon-800/40 rounded-xl p-4 text-center">
+        <div class="text-2xl font-bold text-white">∞</div>
+        <div class="text-xs text-pigeon-400 mt-1">Pigeons Tracked</div>
+      </div>
+    </section>
+
+    <!-- ========== LIVE ACTIVITY FEED ========== -->
+    <section class="mb-10">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 bg-coo-red rounded-full pulse-dot"></span>
+          <h2 class="text-lg font-bold text-white">Live Activity</h2>
+        </div>
+        <span class="text-xs text-pigeon-500">Auto-updating</span>
+      </div>
+      <div class="bg-pigeon-900/50 border border-pigeon-800/40 rounded-xl overflow-hidden">
+        <div id="live-feed" class="divide-y divide-pigeon-800/30 max-h-80 overflow-y-auto hide-scrollbar">
+          <!-- JS will populate this -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MARKET CHARTS SECTION ========== -->
+    <section class="mb-10">
+      <h2 class="text-lg font-bold text-white mb-4">Market Trends</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <!-- Chart: Pigeon Population Index -->
+        <div class="bg-pigeon-900/50 border border-pigeon-800/40 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="text-sm font-semibold text-white">Pigeon Population Index</h3>
+            <span class="text-xs font-semibold text-coo-green">+14.2%</span>
+          </div>
+          <p class="text-xs text-pigeon-500 mb-3">Global urban pigeon count (thousands)</p>
+          <svg viewBox="0 0 400 120" class="w-full h-28" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="popGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.02"/>
+              </linearGradient>
+            </defs>
+            <!-- Grid -->
+            <line x1="0" y1="30" x2="400" y2="30" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <line x1="0" y1="60" x2="400" y2="60" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <line x1="0" y1="90" x2="400" y2="90" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <!-- Y-axis labels -->
+            <text x="4" y="28" fill="#71717a" font-size="8">400K</text>
+            <text x="4" y="58" fill="#71717a" font-size="8">300K</text>
+            <text x="4" y="88" fill="#71717a" font-size="8">200K</text>
+            <!-- Line -->
+            <path d="M0,95 C20,90 40,88 60,85 C80,82 100,78 120,80 C140,82 160,75 180,70 C200,65 220,60 240,55 C260,50 280,52 300,45 C320,38 340,35 360,28 C380,22 390,18 400,15" fill="none" stroke="#3b82f6" stroke-width="2.5" class="chart-line"/>
+            <path d="M0,95 C20,90 40,88 60,85 C80,82 100,78 120,80 C140,82 160,75 180,70 C200,65 220,60 240,55 C260,50 280,52 300,45 C320,38 340,35 360,28 C380,22 390,18 400,15 L400,120 L0,120 Z" fill="url(#popGrad)"/>
+            <!-- Dot at end -->
+            <circle cx="400" cy="15" r="3" fill="#3b82f6"/>
+            <circle cx="400" cy="15" r="6" fill="#3b82f6" opacity="0.2"/>
+            <!-- X-axis labels -->
+            <text x="0" y="118" fill="#71717a" font-size="8">Jan</text>
+            <text x="65" y="118" fill="#71717a" font-size="8">Feb</text>
+            <text x="130" y="118" fill="#71717a" font-size="8">Mar</text>
+            <text x="195" y="118" fill="#71717a" font-size="8">Apr</text>
+            <text x="260" y="118" fill="#71717a" font-size="8">May</text>
+            <text x="325" y="118" fill="#71717a" font-size="8">Jun</text>
+            <text x="385" y="118" fill="#71717a" font-size="8">Jul</text>
+          </svg>
+        </div>
+
+        <!-- Chart: Breadcrumb Price -->
+        <div class="bg-pigeon-900/50 border border-pigeon-800/40 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="text-sm font-semibold text-white">Breadcrumb Futures (BCF)</h3>
+            <span class="text-xs font-semibold text-coo-red">-3.8%</span>
+          </div>
+          <p class="text-xs text-pigeon-500 mb-3">Price per unit in seeds</p>
+          <svg viewBox="0 0 400 120" class="w-full h-28" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="breadGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ef4444" stop-opacity="0.2"/>
+                <stop offset="100%" stop-color="#ef4444" stop-opacity="0.02"/>
+              </linearGradient>
+            </defs>
+            <!-- Grid -->
+            <line x1="0" y1="30" x2="400" y2="30" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <line x1="0" y1="60" x2="400" y2="60" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <line x1="0" y1="90" x2="400" y2="90" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <!-- Y-axis labels -->
+            <text x="4" y="28" fill="#71717a" font-size="8">$4.20</text>
+            <text x="4" y="58" fill="#71717a" font-size="8">$3.50</text>
+            <text x="4" y="88" fill="#71717a" font-size="8">$2.80</text>
+            <!-- Candlestick-style bars -->
+            <line x1="20" y1="35" x2="20" y2="55" stroke="#22c55e" stroke-width="1"/>
+            <rect x="16" y="40" width="8" height="10" fill="#22c55e" rx="1"/>
+            <line x1="45" y1="30" x2="45" y2="52" stroke="#22c55e" stroke-width="1"/>
+            <rect x="41" y="32" width="8" height="14" fill="#22c55e" rx="1"/>
+            <line x1="70" y1="28" x2="70" y2="50" stroke="#22c55e" stroke-width="1"/>
+            <rect x="66" y="30" width="8" height="12" fill="#22c55e" rx="1"/>
+            <line x1="95" y1="25" x2="95" y2="48" stroke="#ef4444" stroke-width="1"/>
+            <rect x="91" y="28" width="8" height="15" fill="#ef4444" rx="1"/>
+            <line x1="120" y1="32" x2="120" y2="55" stroke="#ef4444" stroke-width="1"/>
+            <rect x="116" y="38" width="8" height="12" fill="#ef4444" rx="1"/>
+            <line x1="145" y1="35" x2="145" y2="58" stroke="#22c55e" stroke-width="1"/>
+            <rect x="141" y="38" width="8" height="14" fill="#22c55e" rx="1"/>
+            <line x1="170" y1="30" x2="170" y2="54" stroke="#22c55e" stroke-width="1"/>
+            <rect x="166" y="33" width="8" height="13" fill="#22c55e" rx="1"/>
+            <line x1="195" y1="32" x2="195" y2="56" stroke="#ef4444" stroke-width="1"/>
+            <rect x="191" y="36" width="8" height="15" fill="#ef4444" rx="1"/>
+            <line x1="220" y1="38" x2="220" y2="62" stroke="#ef4444" stroke-width="1"/>
+            <rect x="216" y="42" width="8" height="16" fill="#ef4444" rx="1"/>
+            <line x1="245" y1="40" x2="245" y2="65" stroke="#22c55e" stroke-width="1"/>
+            <rect x="241" y="44" width="8" height="12" fill="#22c55e" rx="1"/>
+            <line x1="270" y1="42" x2="270" y2="68" stroke="#ef4444" stroke-width="1"/>
+            <rect x="266" y="48" width="8" height="16" fill="#ef4444" rx="1"/>
+            <line x1="295" y1="50" x2="295" y2="72" stroke="#ef4444" stroke-width="1"/>
+            <rect x="291" y="54" width="8" height="14" fill="#ef4444" rx="1"/>
+            <line x1="320" y1="48" x2="320" y2="75" stroke="#22c55e" stroke-width="1"/>
+            <rect x="316" y="52" width="8" height="15" fill="#22c55e" rx="1"/>
+            <line x1="345" y1="55" x2="345" y2="80" stroke="#ef4444" stroke-width="1"/>
+            <rect x="341" y="60" width="8" height="16" fill="#ef4444" rx="1"/>
+            <line x1="370" y1="58" x2="370" y2="85" stroke="#ef4444" stroke-width="1"/>
+            <rect x="366" y="62" width="8" height="18" fill="#ef4444" rx="1"/>
+            <!-- X-axis labels -->
+            <text x="0" y="118" fill="#71717a" font-size="8">Mon</text>
+            <text x="80" y="118" fill="#71717a" font-size="8">Tue</text>
+            <text x="160" y="118" fill="#71717a" font-size="8">Wed</text>
+            <text x="240" y="118" fill="#71717a" font-size="8">Thu</text>
+            <text x="320" y="118" fill="#71717a" font-size="8">Fri</text>
+            <text x="380" y="118" fill="#71717a" font-size="8">Sat</text>
+          </svg>
+        </div>
+
+        <!-- Chart: Racing Speed Index -->
+        <div class="bg-pigeon-900/50 border border-pigeon-800/40 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="text-sm font-semibold text-white">Racing Speed Index (RSI)</h3>
+            <span class="text-xs font-semibold text-coo-green">+7.1%</span>
+          </div>
+          <p class="text-xs text-pigeon-500 mb-3">Avg race speed km/h (top 50 pigeons)</p>
+          <svg viewBox="0 0 400 120" class="w-full h-28" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="rsiGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#a855f7" stop-opacity="0.2"/>
+                <stop offset="100%" stop-color="#a855f7" stop-opacity="0.02"/>
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="30" x2="400" y2="30" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <line x1="0" y1="60" x2="400" y2="60" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <line x1="0" y1="90" x2="400" y2="90" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <text x="4" y="28" fill="#71717a" font-size="8">95</text>
+            <text x="4" y="58" fill="#71717a" font-size="8">85</text>
+            <text x="4" y="88" fill="#71717a" font-size="8">75</text>
+            <!-- Area chart with multiple peaks -->
+            <path d="M0,70 C15,68 30,65 50,60 C70,55 85,50 100,52 C115,54 130,48 150,42 C170,36 185,40 200,38 C215,36 230,30 250,28 C270,26 285,32 300,30 C315,28 330,25 350,22 C370,20 385,18 400,15" fill="none" stroke="#a855f7" stroke-width="2.5" class="chart-line" style="filter: drop-shadow(0 0 3px rgba(168, 85, 247, 0.4))"/>
+            <path d="M0,70 C15,68 30,65 50,60 C70,55 85,50 100,52 C115,54 130,48 150,42 C170,36 185,40 200,38 C215,36 230,30 250,28 C270,26 285,32 300,30 C315,28 330,25 350,22 C370,20 385,18 400,15 L400,120 L0,120 Z" fill="url(#rsiGrad)"/>
+            <circle cx="400" cy="15" r="3" fill="#a855f7"/>
+            <circle cx="400" cy="15" r="6" fill="#a855f7" opacity="0.2"/>
+            <text x="0" y="118" fill="#71717a" font-size="8">W1</text>
+            <text x="55" y="118" fill="#71717a" font-size="8">W2</text>
+            <text x="110" y="118" fill="#71717a" font-size="8">W3</text>
+            <text x="165" y="118" fill="#71717a" font-size="8">W4</text>
+            <text x="220" y="118" fill="#71717a" font-size="8">W5</text>
+            <text x="275" y="118" fill="#71717a" font-size="8">W6</text>
+            <text x="330" y="118" fill="#71717a" font-size="8">W7</text>
+            <text x="385" y="118" fill="#71717a" font-size="8">W8</text>
+          </svg>
+        </div>
+
+        <!-- Chart: Market Volume -->
+        <div class="bg-pigeon-900/50 border border-pigeon-800/40 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="text-sm font-semibold text-white">Daily Trading Volume</h3>
+            <span class="text-xs font-semibold text-coo-green">+28.5%</span>
+          </div>
+          <p class="text-xs text-pigeon-500 mb-3">Total bets placed per day</p>
+          <svg viewBox="0 0 400 120" class="w-full h-28" preserveAspectRatio="none">
+            <!-- Grid -->
+            <line x1="0" y1="30" x2="400" y2="30" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <line x1="0" y1="60" x2="400" y2="60" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <line x1="0" y1="90" x2="400" y2="90" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
+            <text x="4" y="28" fill="#71717a" font-size="8">$2M</text>
+            <text x="4" y="58" fill="#71717a" font-size="8">$1M</text>
+            <text x="4" y="88" fill="#71717a" font-size="8">$500K</text>
+            <!-- Bar chart -->
+            <rect x="30" y="72" width="18" height="38" rx="2" fill="#3b82f6" opacity="0.5"/>
+            <rect x="58" y="65" width="18" height="45" rx="2" fill="#3b82f6" opacity="0.5"/>
+            <rect x="86" y="55" width="18" height="55" rx="2" fill="#3b82f6" opacity="0.55"/>
+            <rect x="114" y="60" width="18" height="50" rx="2" fill="#3b82f6" opacity="0.5"/>
+            <rect x="142" y="48" width="18" height="62" rx="2" fill="#3b82f6" opacity="0.6"/>
+            <rect x="170" y="42" width="18" height="68" rx="2" fill="#3b82f6" opacity="0.6"/>
+            <rect x="198" y="50" width="18" height="60" rx="2" fill="#3b82f6" opacity="0.55"/>
+            <rect x="226" y="35" width="18" height="75" rx="2" fill="#3b82f6" opacity="0.65"/>
+            <rect x="254" y="40" width="18" height="70" rx="2" fill="#3b82f6" opacity="0.6"/>
+            <rect x="282" y="30" width="18" height="80" rx="2" fill="#3b82f6" opacity="0.7"/>
+            <rect x="310" y="25" width="18" height="85" rx="2" fill="#3b82f6" opacity="0.75"/>
+            <rect x="338" y="20" width="18" height="90" rx="2" fill="#3b82f6" opacity="0.8"/>
+            <rect x="366" y="12" width="18" height="98" rx="2" fill="#3b82f6" opacity="0.9"/>
+            <text x="30" y="118" fill="#71717a" font-size="8">Feb 17</text>
+            <text x="140" y="118" fill="#71717a" font-size="8">Feb 21</text>
+            <text x="250" y="118" fill="#71717a" font-size="8">Feb 25</text>
+            <text x="355" y="118" fill="#71717a" font-size="8">Mar 1</text>
+          </svg>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========== LEADERBOARD ========== -->
+    <section class="mb-10">
+      <h2 class="text-lg font-bold text-white mb-4">Top Traders</h2>
+      <div class="bg-pigeon-900/50 border border-pigeon-800/40 rounded-xl overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-pigeon-800/50 text-pigeon-500 text-xs uppercase tracking-wider">
+              <th class="text-left py-3 px-4 font-medium">#</th>
+              <th class="text-left py-3 px-4 font-medium">Trader</th>
+              <th class="text-right py-3 px-4 font-medium hidden sm:table-cell">Volume</th>
+              <th class="text-right py-3 px-4 font-medium">Profit</th>
+              <th class="text-right py-3 px-4 font-medium hidden md:table-cell">Win Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-pigeon-800/30 hover:bg-pigeon-800/30 transition-colors">
+              <td class="py-3 px-4 text-yellow-400 font-bold">1</td>
+              <td class="py-3 px-4 font-medium text-white">🐦 CooMaster3000</td>
+              <td class="py-3 px-4 text-right text-pigeon-300 hidden sm:table-cell">$2.4M</td>
+              <td class="py-3 px-4 text-right text-coo-green font-semibold">+$847K</td>
+              <td class="py-3 px-4 text-right text-pigeon-300 hidden md:table-cell">78%</td>
+            </tr>
+            <tr class="border-b border-pigeon-800/30 hover:bg-pigeon-800/30 transition-colors">
+              <td class="py-3 px-4 text-zinc-400 font-bold">2</td>
+              <td class="py-3 px-4 font-medium text-white">🦅 NestEggAlpha</td>
+              <td class="py-3 px-4 text-right text-pigeon-300 hidden sm:table-cell">$1.9M</td>
+              <td class="py-3 px-4 text-right text-coo-green font-semibold">+$623K</td>
+              <td class="py-3 px-4 text-right text-pigeon-300 hidden md:table-cell">72%</td>
+            </tr>
+            <tr class="border-b border-pigeon-800/30 hover:bg-pigeon-800/30 transition-colors">
+              <td class="py-3 px-4 text-orange-400 font-bold">3</td>
+              <td class="py-3 px-4 font-medium text-white">🪶 FeatheredFinance</td>
+              <td class="py-3 px-4 text-right text-pigeon-300 hidden sm:table-cell">$1.7M</td>
+              <td class="py-3 px-4 text-right text-coo-green font-semibold">+$589K</td>
+              <td class="py-3 px-4 text-right text-pigeon-300 hidden md:table-cell">69%</td>
+            </tr>
+            <tr class="border-b border-pigeon-800/30 hover:bg-pigeon-800/30 transition-colors">
+              <td class="py-3 px-4 text-pigeon-500 font-bold">4</td>
+              <td class="py-3 px-4 font-medium text-white">🌾 BreadcrumbTrader</td>
+              <td class="py-3 px-4 text-right text-pigeon-300 hidden sm:table-cell">$1.3M</td>
+              <td class="py-3 px-4 text-right text-coo-green font-semibold">+$412K</td>
+              <td class="py-3 px-4 text-right text-pigeon-300 hidden md:table-cell">65%</td>
+            </tr>
+            <tr class="hover:bg-pigeon-800/30 transition-colors">
+              <td class="py-3 px-4 text-pigeon-500 font-bold">5</td>
+              <td class="py-3 px-4 font-medium text-white">💨 TailwindTony</td>
+              <td class="py-3 px-4 text-right text-pigeon-300 hidden sm:table-cell">$980K</td>
+              <td class="py-3 px-4 text-right text-coo-green font-semibold">+$334K</td>
+              <td class="py-3 px-4 text-right text-pigeon-300 hidden md:table-cell">63%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="border-t border-pigeon-800/50 bg-pigeon-950">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+        <!-- Markets -->
+        <div>
+          <h4 class="text-sm font-semibold text-white mb-3">Markets</h4>
+          <ul class="space-y-2 text-sm text-pigeon-400">
+            <li><a href="#" class="hover:text-white transition-colors">Racing</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Urban Life</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Migration</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Food Wars</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Breeding</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Science</a></li>
+          </ul>
+        </div>
+        <!-- Resources -->
+        <div>
+          <h4 class="text-sm font-semibold text-white mb-3">Resources</h4>
+          <ul class="space-y-2 text-sm text-pigeon-400">
+            <li><a href="#" class="hover:text-white transition-colors">API Docs</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Pigeon Index</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Coo-mmunity</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+          </ul>
+        </div>
+        <!-- Company -->
+        <div>
+          <h4 class="text-sm font-semibold text-white mb-3">Company</h4>
+          <ul class="space-y-2 text-sm text-pigeon-400">
+            <li><a href="#" class="hover:text-white transition-colors">About</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Careers</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Press</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+          </ul>
+        </div>
+        <!-- Social -->
+        <div>
+          <h4 class="text-sm font-semibold text-white mb-3">Social</h4>
+          <ul class="space-y-2 text-sm text-pigeon-400">
+            <li><a href="#" class="hover:text-white transition-colors">Twitter / X</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Discord</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Telegram</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">TikTok</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Bottom bar -->
+      <div class="pt-6 border-t border-pigeon-800/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-sm text-pigeon-500">
+          <span class="text-lg">🐦</span>
+          <span>&copy; 2026 Pigeonmarket. A <a href="#" class="text-pigeon-400 hover:text-white transition-colors">Rent-A-Pigeon</a> company. All rights reserved.</span>
+        </div>
+        <div class="flex items-center gap-4 text-xs text-pigeon-500">
+          <a href="#" class="hover:text-white transition-colors">Privacy</a>
+          <a href="#" class="hover:text-white transition-colors">Terms</a>
+          <a href="#" class="hover:text-white transition-colors">Help Center</a>
+          <span class="text-pigeon-700">|</span>
+          <span class="italic">Predict. Trade. Coo.</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Live activity feed
+    const traders = [
+      '🐦 CooMaster3000', '🦅 NestEggAlpha', '🪶 FeatheredFinance', '🌾 BreadcrumbTrader',
+      '💨 TailwindTony', '🏠 RooftopRick', '🌍 MigrationMax', '🍞 CrumbLord99',
+      '🎯 SniperBeak', '🥚 EggWhisperer', '🌙 NightOwlNest', '📡 HomingHarold',
+      '🎪 SquareSquab', '🧠 BirdBrain420', '⚡ FlockFury', '🎩 FancyFeathers',
+      '🔔 BellTowerBob', '🌊 SeagullSpy', '🏎️ TurboTalon', '🎵 CooTunes'
+    ];
+
+    const markets = [
+      { q: 'Copenhagen Grand Prix winner', options: ['Sir Coos-a-Lot', 'Feather McGraw', 'The Coopinator', 'Wing Commander'] },
+      { q: 'Big Tony steals a bagel', options: ['Yes', 'No'] },
+      { q: 'Pigeons outnumber tourists at Times Square', options: ['Yes', 'No'] },
+      { q: 'Mirror self-recognition test', options: ['Yes', 'No'] },
+      { q: 'Barcelona spring migration before Mar 20', options: ['Yes', 'No'] },
+      { q: 'Nyhavn flock: bread vs rice', options: ['Bread', 'Rice'] },
+      { q: 'Copenhagen pigeon ambassadors', options: ['Yes', 'No'] },
+      { q: 'McGraw London–Paris speed record', options: ['Yes', 'No'] },
+      { q: 'First hatching before Valentine\'s', options: ['Yes', 'No'] },
+      { q: 'Train delay at London Bridge', options: ['Yes', 'No'] },
+      { q: 'Picasso vs Monet recognition', options: ['Yes', 'No'] },
+      { q: 'Breadcrumb futures above $3.50', options: ['Yes', 'No'] },
+      { q: 'Pigeon census exceeds 400K', options: ['Yes', 'No'] },
+      { q: 'Baguette fully abducted by pigeons before summer', options: ['Yes', 'No'] },
+      { q: 'Ghostie and MV actually get married', options: ['Yes', 'No'] },
+    ];
+
+    function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function randAmount() {
+      const amounts = ['$5', '$12', '$25', '$50', '$100', '$250', '$500', '$1.2K', '$2.5K', '$5K', '$10K', '$25K'];
+      return amounts[Math.floor(Math.random() * amounts.length)];
+    }
+    function timeAgo() {
+      const secs = Math.floor(Math.random() * 55) + 1;
+      return secs + 's ago';
+    }
+
+    const feed = document.getElementById('live-feed');
+
+    function createBet() {
+      const trader = rand(traders);
+      const market = rand(markets);
+      const option = rand(market.options);
+      const amount = randAmount();
+      const isBuy = Math.random() > 0.2;
+      const time = timeAgo();
+
+      const el = document.createElement('div');
+      el.className = 'flex items-center gap-3 px-4 py-3 live-bet-enter';
+      el.innerHTML = `
+        <div class="shrink-0 w-8 h-8 rounded-full bg-pigeon-800 flex items-center justify-center text-sm">${trader.split(' ')[0]}</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-sm font-medium text-white truncate">${trader.split(' ').slice(1).join(' ')}</span>
+            <span class="shrink-0 px-1.5 py-0.5 text-[10px] font-semibold rounded ${isBuy ? 'bg-coo-green/15 text-coo-green' : 'bg-coo-red/15 text-coo-red'}">${isBuy ? 'BOUGHT' : 'SOLD'}</span>
+          </div>
+          <p class="text-xs text-pigeon-400 truncate mt-0.5">
+            <span class="font-medium text-pigeon-300">${option}</span> on "${market.q}" for <span class="font-medium text-white">${amount}</span>
+          </p>
+        </div>
+        <span class="shrink-0 text-[10px] text-pigeon-600">${time}</span>
+      `;
+      return el;
+    }
+
+    // Seed initial items
+    for (let i = 0; i < 8; i++) {
+      feed.appendChild(createBet());
+    }
+
+    // Add new bets periodically
+    setInterval(() => {
+      const newBet = createBet();
+      feed.insertBefore(newBet, feed.firstChild);
+      // Keep max 20 items
+      while (feed.children.length > 20) {
+        feed.removeChild(feed.lastChild);
+      }
+    }, 2200 + Math.random() * 1800);
+  </script>
+
+</body>
+</html>
