@@ -50,6 +50,8 @@
     @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
     .pulse-dot { animation: pulse-dot 1.5s ease-in-out infinite; }
     .chart-line { filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.4)); }
+    .chart-path { transition: d 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
+    .chart-bar { transition: y 0.8s ease, height 0.8s ease, opacity 0.8s ease; }
   </style>
 </head>
 
@@ -90,19 +92,19 @@
       </div>
 
       <!-- Category tabs -->
-      <div class="flex items-center gap-1 py-2 overflow-x-auto hide-scrollbar -mx-4 px-4">
-        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full bg-coo-blue/15 text-coo-blue border border-coo-blue/30">Trending</a>
-        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">New</a>
-        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">Popular</a>
-        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">Ending Soon</a>
+      <div id="category-tabs" class="flex items-center gap-1 py-2 overflow-x-auto hide-scrollbar -mx-4 px-4">
+        <a href="#" data-tab="trending" class="cat-tab shrink-0 px-3 py-1.5 text-sm font-medium rounded-full bg-coo-blue/15 text-coo-blue border border-coo-blue/30">Trending</a>
+        <a href="#" data-tab="new" class="cat-tab shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">New</a>
+        <a href="#" data-tab="popular" class="cat-tab shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">Popular</a>
+        <a href="#" data-tab="ending" class="cat-tab shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">Ending Soon</a>
         <span class="w-px h-5 bg-pigeon-700/50 mx-1 shrink-0"></span>
-        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🌆 Urban</a>
-        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🏆 Racing</a>
-        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🌦️ Migration</a>
-        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🍞 Food</a>
-        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🧬 Science</a>
-        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🐣 Breeding</a>
-        <a href="#" class="shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🗳️ Politics</a>
+        <a href="#" data-tab="urban" class="cat-tab shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🌆 Urban</a>
+        <a href="#" data-tab="racing" class="cat-tab shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🏆 Racing</a>
+        <a href="#" data-tab="migration" class="cat-tab shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🌦️ Migration</a>
+        <a href="#" data-tab="food" class="cat-tab shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🍞 Food</a>
+        <a href="#" data-tab="science" class="cat-tab shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🧬 Science</a>
+        <a href="#" data-tab="breeding" class="cat-tab shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🐣 Breeding</a>
+        <a href="#" data-tab="politics" class="cat-tab shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors">🗳️ Politics</a>
       </div>
     </div>
   </nav>
@@ -113,7 +115,7 @@
     <!-- Breaking ticker -->
     <div class="flex items-center gap-3 mb-6 px-4 py-2.5 bg-pigeon-900/60 rounded-xl border border-pigeon-800/40">
       <span class="shrink-0 px-2 py-0.5 text-xs font-bold uppercase tracking-wider bg-coo-red/20 text-coo-red rounded">Breaking</span>
-      <p class="text-sm text-pigeon-300 truncate">Central Park pigeon "Big Tony" spotted with entire bagel — market surges 340%</p>
+      <p class="text-sm text-pigeon-300 truncate">Vondelpark pigeon "Big Tony" spotted with entire stroopwafel — market surges 340%</p>
     </div>
 
     <!-- ========== FEATURED MARKETS ========== -->
@@ -122,18 +124,18 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
         <!-- Featured Card 1 -->
-        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-2xl p-5 cursor-pointer">
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-2xl p-5 cursor-pointer" data-category="racing" data-tags="trending popular">
           <div class="flex items-start justify-between mb-3">
             <div class="flex items-center gap-2">
               <span class="text-2xl">🏆</span>
               <div>
                 <span class="text-xs font-medium text-coo-purple bg-coo-purple/15 px-2 py-0.5 rounded-full">Racing</span>
-                <span class="text-xs text-pigeon-500 ml-2">$1.2M Vol</span>
+                <span id="vol-race" class="text-xs text-pigeon-500 ml-2">$1.2M Vol</span>
               </div>
             </div>
             <span class="text-xs text-pigeon-500">Ends Mar 15</span>
           </div>
-          <h3 class="text-white font-semibold text-base mb-3">Which pigeon wins the 2026 Copenhagen Grand Prix?</h3>
+          <h3 class="text-white font-semibold text-base mb-3">Which pigeon wins the 2026 Amsterdam Grand Prix?</h3>
 
           <!-- Price chart -->
           <div class="mb-4 bg-pigeon-800/40 rounded-xl p-3">
@@ -157,13 +159,13 @@
                 </linearGradient>
               </defs>
               <!-- Sir Coos-a-Lot (green) -->
-              <path d="M0,65 C20,62 40,58 80,55 C120,52 140,48 180,42 C220,36 260,40 300,35 C340,30 370,28 400,25" fill="none" stroke="#22c55e" stroke-width="2" class="chart-line"/>
-              <path d="M0,65 C20,62 40,58 80,55 C120,52 140,48 180,42 C220,36 260,40 300,35 C340,30 370,28 400,25 L400,100 L0,100 Z" fill="url(#chartGrad1)"/>
+              <path id="chart-coos-line" d="" fill="none" stroke="#22c55e" stroke-width="2" class="chart-line chart-path"/>
+              <path id="chart-coos-fill" d="" fill="url(#chartGrad1)" class="chart-path"/>
               <!-- Feather McGraw (blue) -->
-              <path d="M0,55 C20,58 40,60 80,62 C120,58 140,55 180,52 C220,55 260,50 300,48 C340,50 370,47 400,45" fill="none" stroke="#3b82f6" stroke-width="2" class="chart-line"/>
-              <path d="M0,55 C20,58 40,60 80,62 C120,58 140,55 180,52 C220,55 260,50 300,48 C340,50 370,47 400,45 L400,100 L0,100 Z" fill="url(#chartGrad2)"/>
+              <path id="chart-mcgraw-line" d="" fill="none" stroke="#3b82f6" stroke-width="2" class="chart-line chart-path"/>
+              <path id="chart-mcgraw-fill" d="" fill="url(#chartGrad2)" class="chart-path"/>
               <!-- Coopinator (purple) -->
-              <path d="M0,78 C20,76 40,80 80,82 C120,80 140,78 180,76 C220,78 260,75 300,72 C340,74 370,73 400,70" fill="none" stroke="#a855f7" stroke-width="1.5" stroke-opacity="0.7"/>
+              <path id="chart-coop-line" d="" fill="none" stroke="#a855f7" stroke-width="1.5" stroke-opacity="0.7" class="chart-path"/>
               <!-- Grid lines -->
               <line x1="0" y1="25" x2="400" y2="25" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
               <line x1="0" y1="50" x2="400" y2="50" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
@@ -180,8 +182,8 @@
             <div class="flex items-center gap-3">
               <span class="text-sm text-pigeon-300 w-28 truncate">Sir Coos-a-Lot</span>
               <div class="flex-1 h-7 bg-pigeon-800 rounded-full overflow-hidden">
-                <div class="prob-bar h-full bg-coo-green/25 rounded-full flex items-center pl-3" style="width:42%">
-                  <span class="text-xs font-bold text-coo-green">42%</span>
+                <div id="bar-coos" class="prob-bar h-full bg-coo-green/25 rounded-full flex items-center pl-3" style="width:42%">
+                  <span id="pct-coos" class="text-xs font-bold text-coo-green">42%</span>
                 </div>
               </div>
               <div class="flex gap-1.5 shrink-0">
@@ -192,8 +194,8 @@
             <div class="flex items-center gap-3">
               <span class="text-sm text-pigeon-300 w-28 truncate">Feather McGraw</span>
               <div class="flex-1 h-7 bg-pigeon-800 rounded-full overflow-hidden">
-                <div class="prob-bar h-full bg-coo-blue/25 rounded-full flex items-center pl-3" style="width:31%">
-                  <span class="text-xs font-bold text-coo-blue">31%</span>
+                <div id="bar-mcgraw" class="prob-bar h-full bg-coo-blue/25 rounded-full flex items-center pl-3" style="width:31%">
+                  <span id="pct-mcgraw" class="text-xs font-bold text-coo-blue">31%</span>
                 </div>
               </div>
               <div class="flex gap-1.5 shrink-0">
@@ -204,8 +206,8 @@
             <div class="flex items-center gap-3">
               <span class="text-sm text-pigeon-300 w-28 truncate">The Coopinator</span>
               <div class="flex-1 h-7 bg-pigeon-800 rounded-full overflow-hidden">
-                <div class="prob-bar h-full bg-coo-purple/25 rounded-full flex items-center pl-3" style="width:18%">
-                  <span class="text-xs font-bold text-coo-purple">18%</span>
+                <div id="bar-coop" class="prob-bar h-full bg-coo-purple/25 rounded-full flex items-center pl-3" style="width:18%">
+                  <span id="pct-coop" class="text-xs font-bold text-coo-purple">18%</span>
                 </div>
               </div>
               <div class="flex gap-1.5 shrink-0">
@@ -216,8 +218,8 @@
             <div class="flex items-center gap-3">
               <span class="text-sm text-pigeon-300 w-28 truncate">Wing Commander</span>
               <div class="flex-1 h-7 bg-pigeon-800 rounded-full overflow-hidden">
-                <div class="prob-bar h-full bg-yellow-500/25 rounded-full flex items-center pl-3" style="width:9%">
-                  <span class="text-xs font-bold text-yellow-400">9%</span>
+                <div id="bar-wing" class="prob-bar h-full bg-yellow-500/25 rounded-full flex items-center pl-3" style="width:9%">
+                  <span id="pct-wing" class="text-xs font-bold text-yellow-400">9%</span>
                 </div>
               </div>
               <div class="flex gap-1.5 shrink-0">
@@ -229,18 +231,18 @@
         </div>
 
         <!-- Featured Card 2 -->
-        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-2xl p-5 cursor-pointer">
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-2xl p-5 cursor-pointer" data-category="food" data-tags="trending popular ending new">
           <div class="flex items-start justify-between mb-3">
             <div class="flex items-center gap-2">
               <span class="text-2xl">🍟</span>
               <div>
                 <span class="text-xs font-medium text-coo-green bg-coo-green/15 px-2 py-0.5 rounded-full">Food</span>
-                <span class="text-xs text-pigeon-500 ml-2">$890K Vol</span>
+                <span id="vol-tony" class="text-xs text-pigeon-500 ml-2">$890K Vol</span>
               </div>
             </div>
             <span class="text-xs text-pigeon-500">Ends Today</span>
           </div>
-          <h3 class="text-white font-semibold text-base mb-3">Will Big Tony steal another bagel before noon?</h3>
+          <h3 class="text-white font-semibold text-base mb-3">Will Big Tony steal another stroopwafel before noon?</h3>
 
           <!-- Price chart -->
           <div class="mb-4 bg-pigeon-800/40 rounded-xl p-3">
@@ -261,53 +263,31 @@
               <line x1="0" y1="20" x2="400" y2="20" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
               <line x1="0" y1="40" x2="400" y2="40" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
               <line x1="0" y1="60" x2="400" y2="60" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4,4"/>
-              <path d="M0,55 C15,54 25,50 40,52 C55,54 70,48 90,45 C110,42 130,44 150,40 C170,36 190,38 210,35 C230,32 245,28 260,30 C275,32 290,25 310,22 C330,19 350,20 370,15 C385,12 395,10 400,8" fill="none" stroke="#22c55e" stroke-width="2.5" class="chart-line"/>
-              <path d="M0,55 C15,54 25,50 40,52 C55,54 70,48 90,45 C110,42 130,44 150,40 C170,36 190,38 210,35 C230,32 245,28 260,30 C275,32 290,25 310,22 C330,19 350,20 370,15 C385,12 395,10 400,8 L400,80 L0,80 Z" fill="url(#chartGrad3)"/>
+              <path id="chart-tony-line" d="" fill="none" stroke="#22c55e" stroke-width="2.5" class="chart-line chart-path"/>
+              <path id="chart-tony-fill" d="" fill="url(#chartGrad3)" class="chart-path"/>
               <!-- Volume bars at bottom -->
-              <rect x="5" y="68" width="12" height="12" rx="1" fill="#22c55e" opacity="0.15"/>
-              <rect x="22" y="72" width="12" height="8" rx="1" fill="#22c55e" opacity="0.15"/>
-              <rect x="39" y="65" width="12" height="15" rx="1" fill="#22c55e" opacity="0.15"/>
-              <rect x="56" y="70" width="12" height="10" rx="1" fill="#22c55e" opacity="0.15"/>
-              <rect x="73" y="60" width="12" height="20" rx="1" fill="#22c55e" opacity="0.2"/>
-              <rect x="90" y="63" width="12" height="17" rx="1" fill="#22c55e" opacity="0.15"/>
-              <rect x="107" y="66" width="12" height="14" rx="1" fill="#22c55e" opacity="0.15"/>
-              <rect x="124" y="58" width="12" height="22" rx="1" fill="#22c55e" opacity="0.2"/>
-              <rect x="141" y="62" width="12" height="18" rx="1" fill="#22c55e" opacity="0.15"/>
-              <rect x="158" y="55" width="12" height="25" rx="1" fill="#22c55e" opacity="0.25"/>
-              <rect x="175" y="60" width="12" height="20" rx="1" fill="#22c55e" opacity="0.2"/>
-              <rect x="192" y="64" width="12" height="16" rx="1" fill="#22c55e" opacity="0.15"/>
-              <rect x="209" y="56" width="12" height="24" rx="1" fill="#22c55e" opacity="0.2"/>
-              <rect x="226" y="52" width="12" height="28" rx="1" fill="#22c55e" opacity="0.25"/>
-              <rect x="243" y="58" width="12" height="22" rx="1" fill="#22c55e" opacity="0.2"/>
-              <rect x="260" y="50" width="12" height="30" rx="1" fill="#22c55e" opacity="0.3"/>
-              <rect x="277" y="54" width="12" height="26" rx="1" fill="#22c55e" opacity="0.25"/>
-              <rect x="294" y="48" width="12" height="32" rx="1" fill="#22c55e" opacity="0.3"/>
-              <rect x="311" y="52" width="12" height="28" rx="1" fill="#22c55e" opacity="0.25"/>
-              <rect x="328" y="45" width="12" height="35" rx="1" fill="#22c55e" opacity="0.3"/>
-              <rect x="345" y="50" width="12" height="30" rx="1" fill="#22c55e" opacity="0.25"/>
-              <rect x="362" y="42" width="12" height="38" rx="1" fill="#22c55e" opacity="0.35"/>
-              <rect x="379" y="38" width="12" height="42" rx="1" fill="#22c55e" opacity="0.4"/>
+              <g id="chart-tony-bars"></g>
             </svg>
           </div>
 
           <div class="flex items-center gap-4 mb-4">
             <div class="flex-1 text-center p-3 rounded-xl bg-coo-green/10 border border-coo-green/20">
-              <div class="text-2xl font-bold text-coo-green">87%</div>
+              <div id="tony-yes" class="text-2xl font-bold text-coo-green">87%</div>
               <div class="text-xs text-pigeon-400 mt-0.5">Yes</div>
             </div>
             <div class="flex-1 text-center p-3 rounded-xl bg-coo-red/10 border border-coo-red/20">
-              <div class="text-2xl font-bold text-coo-red">13%</div>
+              <div id="tony-no" class="text-2xl font-bold text-coo-red">13%</div>
               <div class="text-xs text-pigeon-400 mt-0.5">No</div>
             </div>
           </div>
           <div class="flex items-center gap-2 text-xs text-pigeon-500">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-            <span>+12% in last hour</span>
+            <span id="tony-change">+12% in last hour</span>
             <span class="mx-1">·</span>
-            <span>4,329 traders</span>
+            <span id="tony-traders">4,329 traders</span>
           </div>
           <div class="mt-3 p-2.5 bg-pigeon-800/50 rounded-lg">
-            <p class="text-xs text-pigeon-400"><span class="text-pigeon-300 font-medium">PigeonWire:</span> Big Tony was spotted circling the bagel cart on 5th Ave at 8:42 AM. Experts say "he looks hungry."</p>
+            <p class="text-xs text-pigeon-400"><span class="text-pigeon-300 font-medium">PigeonWire:</span> Big Tony was spotted circling the stroopwafel stand at Albert Cuyp Market at 8:42 AM. Experts say "he looks hungry."</p>
           </div>
         </div>
       </div>
@@ -316,7 +296,7 @@
     <!-- ========== MARKET GRID ========== -->
     <section class="mb-10">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-bold text-white">All Markets</h2>
+        <h2 id="grid-heading" class="text-lg font-bold text-white">All Markets</h2>
         <div class="flex items-center gap-2 text-xs">
           <button class="px-2.5 py-1 rounded-md bg-pigeon-800 text-pigeon-300 font-medium">All</button>
           <button class="px-2.5 py-1 rounded-md text-pigeon-500 hover:text-pigeon-300 transition-colors">Yes/No</button>
@@ -327,12 +307,12 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
         <!-- Market Card -->
-        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer" data-category="urban" data-tags="popular">
           <div class="flex items-center gap-2 mb-2">
             <span class="text-xs font-medium text-coo-blue bg-coo-blue/15 px-2 py-0.5 rounded-full">Urban</span>
             <span class="text-xs text-pigeon-500">$234K Vol</span>
           </div>
-          <h3 class="text-sm font-semibold text-white mb-3">Pigeons outnumber tourists at Times Square today?</h3>
+          <h3 class="text-sm font-semibold text-white mb-3">Pigeons outnumber tourists at Dam Square today?</h3>
           <div class="flex items-center gap-2 mb-2">
             <div class="flex-1 h-8 bg-pigeon-800 rounded-lg overflow-hidden relative">
               <div class="prob-bar h-full bg-coo-green/20 rounded-lg" style="width:64%"></div>
@@ -349,7 +329,7 @@
         </div>
 
         <!-- Market Card -->
-        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer" data-category="science" data-tags="new">
           <div class="flex items-center gap-2 mb-2">
             <span class="text-xs font-medium text-coo-purple bg-coo-purple/15 px-2 py-0.5 rounded-full">Science</span>
             <span class="text-xs text-pigeon-500">$567K Vol</span>
@@ -371,12 +351,12 @@
         </div>
 
         <!-- Market Card -->
-        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer" data-category="migration" data-tags="ending new">
           <div class="flex items-center gap-2 mb-2">
             <span class="text-xs font-medium text-yellow-400 bg-yellow-400/15 px-2 py-0.5 rounded-full">Migration</span>
             <span class="text-xs text-pigeon-500">$412K Vol</span>
           </div>
-          <h3 class="text-sm font-semibold text-white mb-3">Spring migration from Barcelona arrives before March 20?</h3>
+          <h3 class="text-sm font-semibold text-white mb-3">Spring migration from Toulouse arrives in Canberra before March 20?</h3>
           <div class="flex items-center gap-2 mb-2">
             <div class="flex-1 h-8 bg-pigeon-800 rounded-lg overflow-hidden relative">
               <div class="prob-bar h-full bg-coo-green/20 rounded-lg" style="width:71%"></div>
@@ -393,34 +373,34 @@
         </div>
 
         <!-- Market Card -->
-        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer" data-category="food" data-tags="new ending">
           <div class="flex items-center gap-2 mb-2">
             <span class="text-xs font-medium text-coo-green bg-coo-green/15 px-2 py-0.5 rounded-full">Food</span>
             <span class="text-xs text-pigeon-500">$98K Vol</span>
           </div>
-          <h3 class="text-sm font-semibold text-white mb-3">Will the flock at Nyhavn choose bread over rice today?</h3>
+          <h3 class="text-sm font-semibold text-white mb-3">Will the flock at Place du Capitole choose croissant over baguette today?</h3>
           <div class="flex items-center gap-2 mb-2">
             <div class="flex-1 h-8 bg-pigeon-800 rounded-lg overflow-hidden relative">
               <div class="prob-bar h-full bg-coo-green/20 rounded-lg" style="width:55%"></div>
               <div class="absolute inset-0 flex items-center justify-between px-3">
-                <span class="text-xs font-semibold text-coo-green">Bread 55%</span>
-                <span class="text-xs font-semibold text-coo-red">Rice 45%</span>
+                <span class="text-xs font-semibold text-coo-green">Croissant 55%</span>
+                <span class="text-xs font-semibold text-coo-red">Baguette 45%</span>
               </div>
             </div>
           </div>
           <div class="flex gap-2">
-            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-lg hover:bg-coo-green/25 transition-colors">Buy Bread</button>
-            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-lg hover:bg-coo-red/25 transition-colors">Buy Rice</button>
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-lg hover:bg-coo-green/25 transition-colors">Buy Croissant</button>
+            <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-lg hover:bg-coo-red/25 transition-colors">Buy Baguette</button>
           </div>
         </div>
 
         <!-- Market Card -->
-        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer" data-category="politics" data-tags="popular">
           <div class="flex items-center gap-2 mb-2">
             <span class="text-xs font-medium text-pink-400 bg-pink-400/15 px-2 py-0.5 rounded-full">Politics</span>
             <span class="text-xs text-pigeon-500">$1.8M Vol</span>
           </div>
-          <h3 class="text-sm font-semibold text-white mb-3">Copenhagen to officially designate pigeons as city ambassadors?</h3>
+          <h3 class="text-sm font-semibold text-white mb-3">Canberra to officially designate pigeons as city ambassadors?</h3>
           <div class="flex items-center gap-2 mb-2">
             <div class="flex-1 h-8 bg-pigeon-800 rounded-lg overflow-hidden relative">
               <div class="prob-bar h-full bg-coo-green/20 rounded-lg" style="width:8%"></div>
@@ -437,7 +417,7 @@
         </div>
 
         <!-- Market Card: Baguette abduction -->
-        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer" data-category="urban" data-tags="trending new">
           <div class="flex items-center gap-2 mb-2">
             <span class="text-xs font-medium text-red-400 bg-red-400/15 px-2 py-0.5 rounded-full">Breaking</span>
             <span class="text-xs text-pigeon-500">$4.7M Vol</span>
@@ -452,7 +432,7 @@
               </div>
             </div>
           </div>
-          <p class="text-[10px] text-pigeon-500 mb-2">Parisian boy "Baguette" (age 7) has been progressively carried higher each day by local flock. Currently at 2nd floor altitude.</p>
+          <p class="text-[10px] text-pigeon-500 mb-2">Toulouse boy "Baguette" (age 7) has been progressively carried higher each day by local flock. Currently at 2nd floor altitude.</p>
           <div class="flex gap-2">
             <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-green/15 text-coo-green rounded-lg hover:bg-coo-green/25 transition-colors">Buy Yes</button>
             <button class="flex-1 py-1.5 text-xs font-semibold bg-coo-red/15 text-coo-red rounded-lg hover:bg-coo-red/25 transition-colors">Buy No</button>
@@ -460,7 +440,7 @@
         </div>
 
         <!-- Market Card: Ghostie & MV wedding -->
-        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer" data-category="breeding" data-tags="trending new">
           <div class="flex items-center gap-2 mb-2">
             <span class="text-xs font-medium text-pink-400 bg-pink-400/15 px-2 py-0.5 rounded-full">Romance</span>
             <span class="text-xs text-pigeon-500">$3.2M Vol</span>
@@ -483,12 +463,12 @@
         </div>
 
         <!-- Market Card -->
-        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer" data-category="racing" data-tags="ending">
           <div class="flex items-center gap-2 mb-2">
             <span class="text-xs font-medium text-coo-blue bg-coo-blue/15 px-2 py-0.5 rounded-full">Racing</span>
             <span class="text-xs text-pigeon-500">$345K Vol</span>
           </div>
-          <h3 class="text-sm font-semibold text-white mb-3">Feather McGraw breaks the London–Paris speed record?</h3>
+          <h3 class="text-sm font-semibold text-white mb-3">Feather McGraw breaks the Amsterdam–Toulouse speed record?</h3>
           <div class="flex items-center gap-2 mb-2">
             <div class="flex-1 h-8 bg-pigeon-800 rounded-lg overflow-hidden relative">
               <div class="prob-bar h-full bg-coo-green/20 rounded-lg" style="width:34%"></div>
@@ -505,7 +485,7 @@
         </div>
 
         <!-- Market Card -->
-        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer" data-category="breeding" data-tags="ending">
           <div class="flex items-center gap-2 mb-2">
             <span class="text-xs font-medium text-orange-400 bg-orange-400/15 px-2 py-0.5 rounded-full">Breeding</span>
             <span class="text-xs text-pigeon-500">$156K Vol</span>
@@ -527,12 +507,12 @@
         </div>
 
         <!-- Market Card -->
-        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer" data-category="urban" data-tags="trending popular">
           <div class="flex items-center gap-2 mb-2">
             <span class="text-xs font-medium text-cyan-400 bg-cyan-400/15 px-2 py-0.5 rounded-full">Urban</span>
             <span class="text-xs text-pigeon-500">$678K Vol</span>
           </div>
-          <h3 class="text-sm font-semibold text-white mb-3">Pigeons successfully delay a train at London Bridge this week?</h3>
+          <h3 class="text-sm font-semibold text-white mb-3">Pigeons successfully delay a tram at Amsterdam Centraal this week?</h3>
           <div class="flex items-center gap-2 mb-2">
             <div class="flex-1 h-8 bg-pigeon-800 rounded-lg overflow-hidden relative">
               <div class="prob-bar h-full bg-coo-green/20 rounded-lg" style="width:96%"></div>
@@ -549,7 +529,7 @@
         </div>
 
         <!-- Market Card -->
-        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer">
+        <div class="market-card bg-pigeon-900/70 border border-pigeon-800/50 rounded-xl p-4 cursor-pointer" data-category="science" data-tags="trending popular">
           <div class="flex items-center gap-2 mb-2">
             <span class="text-xs font-medium text-emerald-400 bg-emerald-400/15 px-2 py-0.5 rounded-full">Science</span>
             <span class="text-xs text-pigeon-500">$2.1M Vol</span>
@@ -920,7 +900,561 @@
     </div>
   </footer>
 
+  <!-- ========== BET MODAL ========== -->
+  <div id="bet-modal" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="bet-modal-backdrop"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+      <div class="relative bg-pigeon-900 border border-pigeon-700/50 rounded-2xl w-full max-w-sm p-6 shadow-2xl">
+        <button id="bet-modal-close" class="absolute top-4 right-4 text-pigeon-500 hover:text-white transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+        <h3 id="bet-modal-title" class="text-lg font-bold text-white mb-1"></h3>
+        <p id="bet-modal-side" class="text-sm mb-4"></p>
+        <label class="block text-xs text-pigeon-400 mb-1">Amount</label>
+        <div class="relative mb-3">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-pigeon-500 text-sm">$</span>
+          <input id="bet-amount" type="number" min="1" value="50" class="w-full bg-pigeon-800 border border-pigeon-700/50 rounded-lg pl-7 pr-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-coo-blue/50"/>
+        </div>
+        <div class="flex gap-2 mb-4">
+          <button class="bet-preset flex-1 py-1.5 text-xs font-medium bg-pigeon-800 text-pigeon-300 rounded-lg hover:bg-pigeon-700 transition-colors" data-amount="10">$10</button>
+          <button class="bet-preset flex-1 py-1.5 text-xs font-medium bg-pigeon-800 text-pigeon-300 rounded-lg hover:bg-pigeon-700 transition-colors" data-amount="50">$50</button>
+          <button class="bet-preset flex-1 py-1.5 text-xs font-medium bg-pigeon-800 text-pigeon-300 rounded-lg hover:bg-pigeon-700 transition-colors" data-amount="100">$100</button>
+          <button class="bet-preset flex-1 py-1.5 text-xs font-medium bg-pigeon-800 text-pigeon-300 rounded-lg hover:bg-pigeon-700 transition-colors" data-amount="500">$500</button>
+        </div>
+        <div class="flex items-center justify-between text-xs text-pigeon-400 mb-4">
+          <span>Potential payout</span>
+          <span id="bet-payout" class="text-white font-semibold">$100.00</span>
+        </div>
+        <button id="bet-confirm" class="w-full py-3 text-sm font-bold rounded-xl transition-colors"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== AUTH MODAL ========== -->
+  <div id="auth-modal" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="auth-modal-backdrop"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+      <div class="relative bg-pigeon-900 border border-pigeon-700/50 rounded-2xl w-full max-w-sm p-6 shadow-2xl">
+        <button id="auth-modal-close" class="absolute top-4 right-4 text-pigeon-500 hover:text-white transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+        <div class="text-center mb-5">
+          <span class="text-4xl">🐦</span>
+          <h3 id="auth-modal-title" class="text-lg font-bold text-white mt-2"></h3>
+          <p class="text-xs text-pigeon-500 mt-1">The world's leading pigeon prediction market</p>
+        </div>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs text-pigeon-400 mb-1">Email</label>
+            <input type="email" placeholder="pigeon@coo.market" class="w-full bg-pigeon-800 border border-pigeon-700/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-pigeon-600 focus:outline-none focus:ring-2 focus:ring-coo-blue/50"/>
+          </div>
+          <div>
+            <label class="block text-xs text-pigeon-400 mb-1">Password</label>
+            <input type="password" placeholder="••••••••" class="w-full bg-pigeon-800 border border-pigeon-700/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-pigeon-600 focus:outline-none focus:ring-2 focus:ring-coo-blue/50"/>
+          </div>
+          <button id="auth-submit" class="w-full py-3 bg-coo-blue hover:bg-blue-600 text-white text-sm font-bold rounded-xl transition-colors"></button>
+        </div>
+        <p class="text-center text-xs text-pigeon-500 mt-4">
+          <span id="auth-switch-text"></span>
+          <button id="auth-switch-btn" class="text-coo-blue hover:underline ml-1"></button>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TOAST ========== -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] hidden">
+    <div class="bg-pigeon-800 border border-pigeon-700/50 rounded-xl px-5 py-3 shadow-2xl flex items-center gap-3">
+      <span id="toast-icon" class="text-lg"></span>
+      <span id="toast-msg" class="text-sm text-white font-medium"></span>
+    </div>
+  </div>
+
   <script>
+    // ========== UTILITY ==========
+    function showToast(icon, msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-icon').textContent = icon;
+      document.getElementById('toast-msg').textContent = msg;
+      toast.classList.remove('hidden');
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+
+    // ========== BET MODAL ==========
+    const betModal = document.getElementById('bet-modal');
+    const betTitle = document.getElementById('bet-modal-title');
+    const betSide = document.getElementById('bet-modal-side');
+    const betAmount = document.getElementById('bet-amount');
+    const betPayout = document.getElementById('bet-payout');
+    const betConfirm = document.getElementById('bet-confirm');
+    let currentBetType = 'yes';
+
+    function openBetModal(marketName, side) {
+      currentBetType = side.toLowerCase();
+      const isYes = currentBetType !== 'no' && currentBetType !== 'sell';
+      betTitle.textContent = marketName;
+      betSide.textContent = 'Buy ' + side;
+      betSide.className = 'text-sm mb-4 font-semibold ' + (isYes ? 'text-coo-green' : 'text-coo-red');
+      betConfirm.textContent = 'Confirm — Buy ' + side;
+      betConfirm.className = 'w-full py-3 text-sm font-bold rounded-xl transition-colors text-white ' +
+        (isYes ? 'bg-coo-green hover:bg-green-600' : 'bg-coo-red hover:bg-red-600');
+      betAmount.value = 50;
+      updatePayout();
+      betModal.classList.remove('hidden');
+    }
+
+    function updatePayout() {
+      const amt = parseFloat(betAmount.value) || 0;
+      const multiplier = 1.5 + Math.random() * 1.5;
+      betPayout.textContent = '$' + (amt * multiplier).toFixed(2);
+    }
+
+    betAmount.addEventListener('input', updatePayout);
+
+    document.querySelectorAll('.bet-preset').forEach(btn => {
+      btn.addEventListener('click', () => {
+        betAmount.value = btn.dataset.amount;
+        updatePayout();
+      });
+    });
+
+    betConfirm.addEventListener('click', () => {
+      const amt = betAmount.value;
+      betModal.classList.add('hidden');
+      showToast('🎉', 'Bet placed! $' + amt + ' on ' + betSide.textContent.replace('Buy ', ''));
+    });
+
+    document.getElementById('bet-modal-backdrop').addEventListener('click', () => betModal.classList.add('hidden'));
+    document.getElementById('bet-modal-close').addEventListener('click', () => betModal.classList.add('hidden'));
+
+    // Attach bet buttons — find the market title from the card
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const text = btn.textContent.trim();
+
+      // Buy Yes/No style buttons in market cards
+      if (text.startsWith('Buy ') || text === 'Yes' || text === 'No') {
+        const card = btn.closest('.market-card, section');
+        const titleEl = card ? card.querySelector('h3') : null;
+        const marketName = titleEl ? titleEl.textContent.trim() : 'Market';
+        const side = text.startsWith('Buy ') ? text.replace('Buy ', '') : text;
+        openBetModal(marketName, side);
+        e.stopPropagation();
+      }
+    });
+
+    // ========== AUTH MODAL ==========
+    const authModal = document.getElementById('auth-modal');
+    const authTitle = document.getElementById('auth-modal-title');
+    const authSubmit = document.getElementById('auth-submit');
+    const authSwitchText = document.getElementById('auth-switch-text');
+    const authSwitchBtn = document.getElementById('auth-switch-btn');
+    let authMode = 'login';
+
+    function openAuth(mode) {
+      authMode = mode;
+      updateAuthUI();
+      authModal.classList.remove('hidden');
+    }
+
+    function updateAuthUI() {
+      if (authMode === 'login') {
+        authTitle.textContent = 'Welcome back';
+        authSubmit.textContent = 'Log In';
+        authSwitchText.textContent = "Don't have an account?";
+        authSwitchBtn.textContent = 'Sign up';
+      } else {
+        authTitle.textContent = 'Create account';
+        authSubmit.textContent = 'Sign Up';
+        authSwitchText.textContent = 'Already have an account?';
+        authSwitchBtn.textContent = 'Log in';
+      }
+    }
+
+    authSwitchBtn.addEventListener('click', () => {
+      authMode = authMode === 'login' ? 'signup' : 'login';
+      updateAuthUI();
+    });
+
+    authSubmit.addEventListener('click', () => {
+      authModal.classList.add('hidden');
+      showToast('🐦', authMode === 'login' ? 'Welcome back, trader!' : 'Account created! Welcome to Pigeonmarket.');
+    });
+
+    document.getElementById('auth-modal-backdrop').addEventListener('click', () => authModal.classList.add('hidden'));
+    document.getElementById('auth-modal-close').addEventListener('click', () => authModal.classList.add('hidden'));
+
+    // Nav Log In / Sign Up buttons
+    document.querySelectorAll('nav button').forEach(btn => {
+      const text = btn.textContent.trim();
+      if (text === 'Log In') btn.addEventListener('click', () => openAuth('login'));
+      if (text === 'Sign Up') btn.addEventListener('click', () => openAuth('signup'));
+      if (text.includes('Rankings')) btn.addEventListener('click', () => {
+        document.querySelector('#leaderboard-section')?.scrollIntoView({ behavior: 'smooth' }) ||
+        document.querySelector('table')?.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    // ========== CATEGORY TABS ==========
+    const allCards = document.querySelectorAll('.market-card[data-category]');
+    const gridHeading = document.getElementById('grid-heading');
+    const metaTabs = ['trending', 'new', 'popular', 'ending'];
+    const headingMap = { trending: 'Trending Markets', new: 'New Markets', popular: 'Popular Markets', ending: 'Ending Soon' };
+
+    function filterCards(filter) {
+      allCards.forEach(card => {
+        const tags = (card.dataset.tags || '').split(' ');
+        const category = card.dataset.category;
+        let show = false;
+
+        if (metaTabs.includes(filter)) {
+          show = tags.includes(filter);
+        } else {
+          show = category === filter;
+        }
+
+        card.style.display = show ? '' : 'none';
+      });
+
+      if (gridHeading) {
+        if (metaTabs.includes(filter)) {
+          gridHeading.textContent = headingMap[filter];
+        } else {
+          const tab = document.querySelector(`.cat-tab[data-tab="${filter}"]`);
+          const label = tab ? tab.textContent.trim().replace(/^[^\w]*/, '') : filter;
+          gridHeading.textContent = label + ' Markets';
+        }
+      }
+    }
+
+    document.querySelectorAll('.cat-tab').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('.cat-tab').forEach(t => {
+          t.className = 'cat-tab shrink-0 px-3 py-1.5 text-sm font-medium rounded-full text-pigeon-400 hover:text-white hover:bg-pigeon-800/60 transition-colors';
+        });
+        tab.className = 'cat-tab shrink-0 px-3 py-1.5 text-sm font-medium rounded-full bg-coo-blue/15 text-coo-blue border border-coo-blue/30';
+        filterCards(tab.dataset.tab);
+      });
+    });
+
+    // ========== FILTER TABS (All / Yes/No / Multi) ==========
+    const filterContainer = document.querySelector('.flex.items-center.gap-2.text-xs');
+    if (filterContainer) {
+      filterContainer.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterContainer.querySelectorAll('button').forEach(b => {
+            b.className = 'px-2.5 py-1 rounded-md text-pigeon-500 hover:text-pigeon-300 transition-colors';
+          });
+          btn.className = 'px-2.5 py-1 rounded-md bg-pigeon-800 text-pigeon-300 font-medium';
+          showToast('🔍', 'Filter: ' + btn.textContent.trim());
+        });
+      });
+    }
+
+    // ========== CHART TIME TOGGLES ==========
+    document.querySelectorAll('.flex.gap-2.text-xs').forEach(group => {
+      const btns = group.querySelectorAll('button');
+      if (btns.length === 3) {
+        const labels = Array.from(btns).map(b => b.textContent.trim());
+        if (labels.includes('24h') && labels.includes('7d') && labels.includes('30d')) {
+          btns.forEach(btn => {
+            btn.addEventListener('click', () => {
+              btns.forEach(b => b.className = 'text-pigeon-500 hover:text-pigeon-300');
+              btn.className = 'text-coo-blue font-medium';
+            });
+          });
+        }
+      }
+    });
+
+    // ========== LOAD MORE ==========
+    const loadMoreBtn = document.querySelector('button.px-6');
+    if (loadMoreBtn && loadMoreBtn.textContent.trim() === 'Load more markets') {
+      loadMoreBtn.addEventListener('click', () => {
+        loadMoreBtn.textContent = 'Loading...';
+        loadMoreBtn.disabled = true;
+        setTimeout(() => {
+          loadMoreBtn.textContent = 'No more markets to load';
+          loadMoreBtn.className = 'px-6 py-2.5 text-sm font-medium text-pigeon-600 bg-pigeon-900 border border-pigeon-800/50 rounded-xl cursor-default';
+          showToast('🐦', "You've seen all the markets!");
+        }, 1000);
+      });
+    }
+
+    // ========== KEYBOARD: ESC closes modals ==========
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        betModal.classList.add('hidden');
+        authModal.classList.add('hidden');
+      }
+    });
+
+    // ========== LIVE FEATURED UPDATES ==========
+    const CHART_W = 400, CHART_H = 100, TONY_H = 80;
+    const MAX_PTS = 40;
+    const ANIM_MS = 1200;
+
+    // --- Convert values to [x, y] coordinates ---
+    function toCoords(points, w, h) {
+      const step = w / (points.length - 1);
+      return points.map((v, i) => [i * step, h - (v / 100) * (h * 0.8) - h * 0.05]);
+    }
+
+    // --- Build smooth cubic bezier path from coordinate array ---
+    function coordsToPath(coords) {
+      if (coords.length < 2) return '';
+      let d = 'M' + coords[0][0].toFixed(1) + ',' + coords[0][1].toFixed(1);
+      for (let i = 1; i < coords.length; i++) {
+        const cx = (coords[i - 1][0] + coords[i][0]) / 2;
+        d += ' C' + cx.toFixed(1) + ',' + coords[i - 1][1].toFixed(1)
+           + ' ' + cx.toFixed(1) + ',' + coords[i][1].toFixed(1)
+           + ' ' + coords[i][0].toFixed(1) + ',' + coords[i][1].toFixed(1);
+      }
+      return d;
+    }
+
+    // --- Lerp between two coordinate arrays ---
+    function lerpCoords(from, to, t) {
+      return from.map((c, i) => [
+        c[0] + (to[i][0] - c[0]) * t,
+        c[1] + (to[i][1] - c[1]) * t,
+      ]);
+    }
+
+    // --- Animate a set of path elements from old coords to new coords ---
+    function animateChart(entries, duration) {
+      // entries: [{ lineEl, fillEl, fromCoords, toCoords, h }]
+      const start = performance.now();
+      function frame(now) {
+        const t = Math.min((now - start) / duration, 1);
+        const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; // easeInOutCubic
+        entries.forEach(e => {
+          const cur = lerpCoords(e.fromCoords, e.toCoords, ease);
+          const d = coordsToPath(cur);
+          e.lineEl.setAttribute('d', d);
+          if (e.fillEl) {
+            e.fillEl.setAttribute('d', d + ' L' + e.toCoords[e.toCoords.length - 1][0].toFixed(1) + ',' + e.h + ' L0,' + e.h + ' Z');
+          }
+        });
+        if (t < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    // --- Animate volume bars (height + opacity transition) ---
+    function animateTonyBars(targetBars) {
+      const barsEl = document.getElementById('chart-tony-bars');
+      // Ensure correct number of rects exist
+      while (barsEl.children.length < targetBars.length) {
+        const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        r.setAttribute('rx', '1');
+        r.setAttribute('fill', '#22c55e');
+        r.setAttribute('width', '12');
+        r.classList.add('chart-bar');
+        barsEl.appendChild(r);
+      }
+      while (barsEl.children.length > targetBars.length) {
+        barsEl.removeChild(barsEl.lastChild);
+      }
+      targetBars.forEach((b, i) => {
+        const r = barsEl.children[i];
+        r.setAttribute('x', b.x.toFixed(1));
+        r.setAttribute('y', b.y.toFixed(1));
+        r.setAttribute('height', b.h.toFixed(1));
+        r.setAttribute('opacity', b.op.toFixed(2));
+      });
+    }
+
+    // --- Init history helper ---
+    function initHistory(startVal, n) {
+      const h = [startVal];
+      for (let i = 1; i < n; i++) h.push(Math.max(3, Math.min(60, h[i - 1] + (Math.random() - 0.5) * 4)));
+      return h;
+    }
+
+    // --- Racing chart data ---
+    const raceHistory = {
+      coos: initHistory(35, MAX_PTS),
+      mcgraw: initHistory(28, MAX_PTS),
+      coop: initHistory(22, MAX_PTS),
+    };
+    raceHistory.coos[MAX_PTS - 1] = 42;
+    raceHistory.mcgraw[MAX_PTS - 1] = 31;
+    raceHistory.coop[MAX_PTS - 1] = 18;
+
+    // Store current rendered coords for lerping
+    let raceCoords = {
+      coos: toCoords(raceHistory.coos, CHART_W, CHART_H),
+      mcgraw: toCoords(raceHistory.mcgraw, CHART_W, CHART_H),
+      coop: toCoords(raceHistory.coop, CHART_W, CHART_H),
+    };
+
+    // Cache elements
+    const raceEls = {
+      coosLine: document.getElementById('chart-coos-line'),
+      coosFill: document.getElementById('chart-coos-fill'),
+      mcgrawLine: document.getElementById('chart-mcgraw-line'),
+      mcgrawFill: document.getElementById('chart-mcgraw-fill'),
+      coopLine: document.getElementById('chart-coop-line'),
+    };
+
+    function drawRaceChart(animate) {
+      const newCoords = {
+        coos: toCoords(raceHistory.coos, CHART_W, CHART_H),
+        mcgraw: toCoords(raceHistory.mcgraw, CHART_W, CHART_H),
+        coop: toCoords(raceHistory.coop, CHART_W, CHART_H),
+      };
+      if (animate) {
+        animateChart([
+          { lineEl: raceEls.coosLine, fillEl: raceEls.coosFill, fromCoords: raceCoords.coos, toCoords: newCoords.coos, h: CHART_H },
+          { lineEl: raceEls.mcgrawLine, fillEl: raceEls.mcgrawFill, fromCoords: raceCoords.mcgraw, toCoords: newCoords.mcgraw, h: CHART_H },
+          { lineEl: raceEls.coopLine, fillEl: null, fromCoords: raceCoords.coop, toCoords: newCoords.coop, h: CHART_H },
+        ], ANIM_MS);
+      } else {
+        // Instant draw
+        [['coos', raceEls.coosLine, raceEls.coosFill],
+         ['mcgraw', raceEls.mcgrawLine, raceEls.mcgrawFill],
+         ['coop', raceEls.coopLine, null]].forEach(([k, line, fill]) => {
+          const d = coordsToPath(newCoords[k]);
+          line.setAttribute('d', d);
+          if (fill) fill.setAttribute('d', d + ' L' + CHART_W + ',' + CHART_H + ' L0,' + CHART_H + ' Z');
+        });
+      }
+      raceCoords = newCoords;
+    }
+    drawRaceChart(false);
+
+    // --- Tony chart data ---
+    const tonyHistory = initHistory(75, MAX_PTS);
+    tonyHistory[MAX_PTS - 1] = 87;
+    const tonyVolHistory = [];
+    for (let i = 0; i < 24; i++) tonyVolHistory.push(8 + Math.random() * 35);
+
+    let tonyCoords = toCoords(tonyHistory, CHART_W, TONY_H);
+    const tonyEls = {
+      line: document.getElementById('chart-tony-line'),
+      fill: document.getElementById('chart-tony-fill'),
+    };
+
+    function calcTonyBars() {
+      const barW = 12, gap = (CHART_W - tonyVolHistory.length * barW) / (tonyVolHistory.length + 1);
+      const maxVol = Math.max(...tonyVolHistory);
+      return tonyVolHistory.map((v, i) => {
+        const h = (v / maxVol) * 30;
+        return { x: gap + i * (barW + gap), y: TONY_H - h, h, op: 0.12 + (v / maxVol) * 0.3 };
+      });
+    }
+
+    function drawTonyChart(animate) {
+      const newCoords = toCoords(tonyHistory, CHART_W, TONY_H);
+      if (animate) {
+        animateChart([
+          { lineEl: tonyEls.line, fillEl: tonyEls.fill, fromCoords: tonyCoords, toCoords: newCoords, h: TONY_H },
+        ], ANIM_MS);
+      } else {
+        const d = coordsToPath(newCoords);
+        tonyEls.line.setAttribute('d', d);
+        tonyEls.fill.setAttribute('d', d + ' L' + CHART_W + ',' + TONY_H + ' L0,' + TONY_H + ' Z');
+      }
+      tonyCoords = newCoords;
+      animateTonyBars(calcTonyBars());
+    }
+    drawTonyChart(false);
+
+    // --- Racing card state ---
+    const raceState = { coos: 42, mcgraw: 31, coop: 18, wing: 9 };
+    let raceVol = 1200;
+
+    function nudge(state) {
+      const keys = Object.keys(state);
+      const from = keys[Math.floor(Math.random() * keys.length)];
+      let to = keys[Math.floor(Math.random() * keys.length)];
+      while (to === from) to = keys[Math.floor(Math.random() * keys.length)];
+      const shift = Math.random() < 0.3 ? 2 : 1;
+      if (state[from] > shift + 2) { state[from] -= shift; state[to] += shift; }
+    }
+
+    function updateRaceUI() {
+      document.getElementById('bar-coos').style.width = raceState.coos + '%';
+      document.getElementById('pct-coos').textContent = raceState.coos + '%';
+      document.getElementById('bar-mcgraw').style.width = raceState.mcgraw + '%';
+      document.getElementById('pct-mcgraw').textContent = raceState.mcgraw + '%';
+      document.getElementById('bar-coop').style.width = raceState.coop + '%';
+      document.getElementById('pct-coop').textContent = raceState.coop + '%';
+      document.getElementById('bar-wing').style.width = raceState.wing + '%';
+      document.getElementById('pct-wing').textContent = raceState.wing + '%';
+      raceVol += Math.floor(Math.random() * 15) + 1;
+      document.getElementById('vol-race').textContent = '$' + (raceVol / 1000).toFixed(1) + 'M Vol';
+
+      raceHistory.coos.push(raceState.coos);
+      raceHistory.mcgraw.push(raceState.mcgraw);
+      raceHistory.coop.push(raceState.coop);
+      if (raceHistory.coos.length > MAX_PTS) {
+        raceHistory.coos.shift();
+        raceHistory.mcgraw.shift();
+        raceHistory.coop.shift();
+      }
+      drawRaceChart(true);
+    }
+
+    // --- Tony card state ---
+    let tonyYes = 87;
+    let tonyTraders = 4329;
+    let tonyVol = 890;
+
+    function updateTonyUI() {
+      const shift = Math.random() < 0.5 ? (Math.random() < 0.5 ? 1 : -1) : 0;
+      tonyYes = Math.max(50, Math.min(98, tonyYes + shift));
+      const tonyNo = 100 - tonyYes;
+      tonyTraders += Math.floor(Math.random() * 8) + 1;
+      tonyVol += Math.floor(Math.random() * 5) + 1;
+
+      document.getElementById('tony-yes').textContent = tonyYes + '%';
+      document.getElementById('tony-no').textContent = tonyNo + '%';
+      document.getElementById('tony-traders').textContent = tonyTraders.toLocaleString() + ' traders';
+      document.getElementById('vol-tony').textContent = '$' + (tonyVol >= 1000 ? (tonyVol / 1000).toFixed(1) + 'M' : tonyVol + 'K') + ' Vol';
+
+      const hourChange = shift > 0 ? '+' : (shift < 0 ? '-' : '+');
+      const changePct = Math.floor(Math.random() * 15) + 1;
+      document.getElementById('tony-change').textContent = hourChange + changePct + '% in last hour';
+
+      tonyHistory.push(tonyYes);
+      if (tonyHistory.length > MAX_PTS) tonyHistory.shift();
+      tonyVolHistory.push(8 + Math.random() * 35);
+      if (tonyVolHistory.length > 24) tonyVolHistory.shift();
+      drawTonyChart(true);
+    }
+
+    // Run updates
+    setInterval(() => { nudge(raceState); updateRaceUI(); }, 3000);
+    setInterval(updateTonyUI, 4000);
+
+    // ========== FOOTER LINKS ==========
+    document.querySelectorAll('footer a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const text = link.textContent.trim();
+        showToast('🔗', text + ' — Coming soon!');
+      });
+    });
+
+    // ========== SEARCH ==========
+    const searchInput = document.querySelector('input[placeholder="Search markets…"]');
+    if (searchInput) {
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const q = searchInput.value.trim();
+          if (q) {
+            showToast('🔍', 'Searching for "' + q + '"...');
+            searchInput.value = '';
+          }
+        }
+      });
+    }
+
     // Live activity feed
     const traders = [
       '🐦 CooMaster3000', '🦅 NestEggAlpha', '🪶 FeatheredFinance', '🌾 BreadcrumbTrader',
@@ -931,16 +1465,16 @@
     ];
 
     const markets = [
-      { q: 'Copenhagen Grand Prix winner', options: ['Sir Coos-a-Lot', 'Feather McGraw', 'The Coopinator', 'Wing Commander'] },
-      { q: 'Big Tony steals a bagel', options: ['Yes', 'No'] },
-      { q: 'Pigeons outnumber tourists at Times Square', options: ['Yes', 'No'] },
+      { q: 'Amsterdam Grand Prix winner', options: ['Sir Coos-a-Lot', 'Feather McGraw', 'The Coopinator', 'Wing Commander'] },
+      { q: 'Big Tony steals a stroopwafel', options: ['Yes', 'No'] },
+      { q: 'Pigeons outnumber tourists at Dam Square', options: ['Yes', 'No'] },
       { q: 'Mirror self-recognition test', options: ['Yes', 'No'] },
-      { q: 'Barcelona spring migration before Mar 20', options: ['Yes', 'No'] },
-      { q: 'Nyhavn flock: bread vs rice', options: ['Bread', 'Rice'] },
-      { q: 'Copenhagen pigeon ambassadors', options: ['Yes', 'No'] },
-      { q: 'McGraw London–Paris speed record', options: ['Yes', 'No'] },
+      { q: 'Toulouse–Canberra spring migration before Mar 20', options: ['Yes', 'No'] },
+      { q: 'Place du Capitole flock: croissant vs baguette', options: ['Croissant', 'Baguette'] },
+      { q: 'Canberra pigeon ambassadors', options: ['Yes', 'No'] },
+      { q: 'McGraw Amsterdam–Toulouse speed record', options: ['Yes', 'No'] },
       { q: 'First hatching before Valentine\'s', options: ['Yes', 'No'] },
-      { q: 'Train delay at London Bridge', options: ['Yes', 'No'] },
+      { q: 'Tram delay at Amsterdam Centraal', options: ['Yes', 'No'] },
       { q: 'Picasso vs Monet recognition', options: ['Yes', 'No'] },
       { q: 'Breadcrumb futures above $3.50', options: ['Yes', 'No'] },
       { q: 'Pigeon census exceeds 400K', options: ['Yes', 'No'] },
